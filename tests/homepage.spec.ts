@@ -1,6 +1,5 @@
-import { JavaScriptActions } from '@cnbc/playwright-sdk';
+import { JavaScriptActions, BasePage } from '@cnbc/playwright-sdk';
 import { test, expect } from '../fixtures/lambdatest';
-import { BasePage } from '@cnbc/playwright-sdk';
 
 /**
  * Test ID: C175315430
