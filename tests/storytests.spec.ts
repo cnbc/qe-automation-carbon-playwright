@@ -8,9 +8,9 @@ import { test, expect } from '../fixtures/lambdatest';
  * 
  * Migrated from: com.cnbc.Phoenix.TestCases.HomePageTestCases.C175315430()
  */
-test.describe('Homepage River Module Tests', () => {
+test.describe('Carbon Story Tests', () => {
   
-  test('C175315430 - Verify homepage River module displays', {tag: ['@C175315430', '@HomePage']} ,async ({ page, wait, browserActions, msa }) => {
+  test('C175315430 - Verify homepage River module displays', {tag: ['@C175315430', '@Story','@Regression','@High','@BAT','@MVP']} ,async ({ page, wait, browserActions, msa }) => {
     const homePage = new BasePage(page, 'HomePage');
     
     // Step 1: Navigate to CNBC homepage

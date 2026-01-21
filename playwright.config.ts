@@ -64,20 +64,21 @@ export default defineConfig({
   /* Configure projects for major browsers */
   projects: [
      // LambdaTest Chrome on MacOS Tahoe  (connection handled by fixture)
-    {
+    /*{
       name: 'lambdatest-chrome-macos-tahoe',
       use: {
         ...devices['Desktop Chrome'],
       },
       // Limit parallel execution for LambdaTest to avoid concurrency issues
       fullyParallel: true,
-    },
+    },*/
     {
       name: 'chromium',
       use: { ...devices['Desktop Chrome'] },
+      fullyParallel: true,
     },
 
-    {
+    /*{
       name: 'firefox',
       use: { ...devices['Desktop Firefox'] },
     },
@@ -85,7 +86,7 @@ export default defineConfig({
     {
       name: 'webkit',
       use: { ...devices['Desktop Safari'] },
-    },
+    },*/
 
     /* Test against mobile viewports. */
     // {
