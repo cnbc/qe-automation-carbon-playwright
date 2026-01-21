@@ -3,16 +3,16 @@ import { WaitHelpers, BrowserActions, MouseActions } from '@cnbc/playwright-sdk'
 import path from 'path';
 
 // Generate build name once at module load time (not per test)
-const BUILD_NAME = process.env.LT_BUILD_NAME || `CNBC Playwright Web Tests - ${new Date().toLocaleString('en-US', { month: 'short', day: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false }).replace(/,/g, '')}`;
+const BUILD_NAME = process.env.LT_BUILD_NAME || `Carbon Playwright Tests - ${new Date().toLocaleString('en-US', { month: 'short', day: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false }).replace(/,/g, '')}`;
 
 // LambdaTest capabilities
 const capabilities = {
   browserName: "Chrome",
   browserVersion: "latest",
   "LT:Options": {
-    platform: "Windows 11",
+    platform: "MacOS Tahoe",
     build: BUILD_NAME,
-    name: "CNBC Test",
+    name: "Carbon Automation Tests",
     user: process.env.LT_USER,
     accessKey: process.env.LT_PASS,
     network: true,
@@ -59,8 +59,12 @@ const modifyCapabilities = (configName: string, testName: string) => {
       const platformMap: { [key: string]: string } = {
         'win11': 'Windows 11',
         'win10': 'Windows 10',
-        'macos': 'macOS Big Sur',
-        'linux': 'Ubuntu 20.04'
+        'macos-tahoe': 'MacOS Tahoe',
+        'macos-ventura': 'macOS Ventura',
+        'macos-sonoma': 'macOS Sonoma',
+        'macos-monterey': 'macOS Monterey',
+        'macos-sequoia': 'MacOS Sequoia',
+
       };
       capabilities["LT:Options"]["platform"] = platformMap[platformPart] || capabilities["LT:Options"]["platform"];
     }

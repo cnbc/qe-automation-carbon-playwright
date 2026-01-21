@@ -9,10 +9,10 @@ const getCapabilities = (testName?: string) => ({
   'browserName': 'Chrome',
   'browserVersion': 'latest',
   'LT:Options': {
-    'platform': 'Windows 11',
-    'build': process.env.LT_BUILD_NAME || 'CNBC Playwright Web Tests',
-    'name': testName || process.env.LT_TEST_NAME || 'CNBC HomePage Test',
-    'project': process.env.LT_PROJECT_NAME || 'CNBC HomePage PW Tests',
+    'platform': 'MacOS Tahoe',
+    'build': process.env.LT_BUILD_NAME || 'Carbon Playwright Tests',
+    'name': testName || process.env.LT_TEST_NAME || 'Carbon Automation Tests',
+    'project': process.env.LT_PROJECT_NAME || 'Carbon Automation Tests',
     'w3c': true,
     'plugin': 'playwright-test',
     'video': true,
@@ -47,7 +47,7 @@ export default defineConfig({
   /* Retry on CI only */
   retries: process.env.CI ? 0 : 0,
   /* Opt out of parallel tests on CI. */
-  workers: process.env.CI ? 10 : undefined,
+  workers: process.env.CI ? 5 : undefined,
   /* Reporter to use. See https://playwright.dev/docs/test-reporters */
   reporter: 'html',
   /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
@@ -63,9 +63,9 @@ export default defineConfig({
 
   /* Configure projects for major browsers */
   projects: [
-     // LambdaTest Chrome on Windows 11 (connection handled by fixture)
+     // LambdaTest Chrome on MacOS Tahoe  (connection handled by fixture)
     {
-      name: 'lambdatest-chrome-win11',
+      name: 'lambdatest-chrome-macos-tahoe',
       use: {
         ...devices['Desktop Chrome'],
       },
