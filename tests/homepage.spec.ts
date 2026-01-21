@@ -40,8 +40,8 @@ test.describe('Homepage River Module Tests', () => {
     
     // Step 6: Wait for Breaker stories to load
     homePage.logStep('Waiting for Breaker Module stories');
-    await wait.forVisible("//*[contains(@class,'RiverPlusBreaker-container')]//*[contains(@class,'RiverPlusCard-breakerCardContainer')]", 20000);
     const breakerStories = page.locator("//*[contains(@class,'RiverPlusBreaker-container')]//*[contains(@class,'RiverPlusCard-breakerCardContainer')]");
+    await breakerStories.first().waitFor({ state: 'visible', timeout: 20000 });
     
     // Step 7: Verify River Module has 18 or 19 regular stories
     // River module has 21 stories [19 regular stories including Native ad + 2 Breaker stories]

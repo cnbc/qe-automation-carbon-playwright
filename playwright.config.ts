@@ -60,14 +60,11 @@ export default defineConfig({
 
   /* Configure projects for major browsers */
   projects: [
-     // LambdaTest Chrome on Windows 11
+     // LambdaTest Chrome on Windows 11 (connection handled by fixture)
     {
       name: 'lambdatest-chrome-win11',
       use: {
         ...devices['Desktop Chrome'],
-        connectOptions: {
-          wsEndpoint: `wss://${process.env.LT_USERNAME}:${process.env.LT_ACCESS_KEY}@cdp.lambdatest.com/playwright?capabilities=${encodeURIComponent(JSON.stringify(getCapabilities()))}`
-        }
       }
     },
     {
