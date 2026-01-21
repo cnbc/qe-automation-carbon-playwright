@@ -607,7 +607,7 @@ test.describe('Homepage River Module Tests', () => {
     // Step 1: Navigate to CNBC homepage
     homePage.logStep('Opening CNBC homepage');
     await homePage.goto('https://www.cnbc.com/');
-    await page.setViewportSize({ width: 1920, height: 1080 });
+    //await page.setViewportSize({ width: 1920, height: 1080 });
     
     // Step 2: Wait for page load and lazy load modules
     homePage.logStep('Waiting for page to load completely');
@@ -785,7 +785,7 @@ test.describe('Homepage River Module Tests', () => {
     // Step 1: Navigate to CNBC homepage
     homePage.logStep('Opening CNBC homepage');
     await homePage.goto('https://www.cnbc.com/');
-    await page.setViewportSize({ width: 1920, height: 1080 });
+    //await page.setViewportSize({ width: 1920, height: 1080 });
     
     // Step 2: Wait for page load and scroll to River Module
     homePage.logStep('Waiting for page to load completely');
@@ -896,7 +896,7 @@ test.describe('Homepage River Module Tests', () => {
     // Step 1: Navigate to CNBC homepage
     homePage.logStep('Opening CNBC homepage');
     await homePage.goto('https://www.cnbc.com/');
-    await page.setViewportSize({ width: 1920, height: 1080 });
+    //await page.setViewportSize({ width: 1920, height: 1080 });
     
     // Step 2: Wait for page load and lazy load modules
     homePage.logStep('Waiting for page to load completely');
@@ -964,7 +964,7 @@ test.describe('Homepage River Module Tests', () => {
     // Step 1: Navigate to CNBC homepage
     homePage.logStep('Opening CNBC homepage');
     await homePage.goto('https://www.cnbc.com/');
-    await page.setViewportSize({ width: 1920, height: 1080 });
+    //await page.setViewportSize({ width: 1920, height: 1080 });
     
     // Step 2: Wait for page load and lazy load modules
     homePage.logStep('Waiting for page to load completely');
@@ -1007,7 +1007,7 @@ test.describe('Homepage River Module Tests', () => {
     // Step 6: Verify breaker module stories
     homePage.logStep('Verifying breaker module stories');
     const breakerModuleStories = page.locator("//*[contains(@class,'RiverPlusBreaker-container')]//*[contains(@class,'RiverPlusCard-breakerCardContainer')]");
-    await wait.forVisible("//*[contains(@class,'RiverPlusBreaker-container')]//*[contains(@class,'RiverPlusCard-breakerCardContainer')]", 20000);
+    await breakerModuleStories.first().waitFor({ state: 'visible', timeout: 20000 });
     const riverModuleStories = page.locator("//*[contains(@id,'Homepage-riverPlus')]");
     await riverModuleStories.first().scrollIntoViewIfNeeded();
     

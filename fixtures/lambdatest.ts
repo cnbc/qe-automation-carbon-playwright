@@ -2,13 +2,16 @@ import { test as base, chromium } from '@playwright/test';
 import { WaitHelpers, BrowserActions, MouseActions } from '@cnbc/playwright-sdk';
 import path from 'path';
 
+// Generate build name once at module load time (not per test)
+const BUILD_NAME = process.env.LT_BUILD_NAME || `CNBC Playwright Web Tests - ${new Date().toLocaleString('en-US', { month: 'short', day: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false }).replace(/,/g, '')}`;
+
 // LambdaTest capabilities
 const capabilities = {
   browserName: "Chrome",
   browserVersion: "latest",
   "LT:Options": {
     platform: "Windows 11",
-    build: process.env.LT_BUILD_NAME || "CNBC Playwright Web Tests",
+    build: BUILD_NAME,
     name: "CNBC Test",
     user: process.env.LT_USER,
     accessKey: process.env.LT_PASS,
@@ -19,6 +22,7 @@ const capabilities = {
     tunnel: false,
     tunnelName: "",
     geoLocation: "US",
+    resolution: "1920x1080", // Browser window resolution
   },
 };
 
@@ -93,7 +97,13 @@ export const test = base.extend<{
         )}`,
       });
 
+      // Wait for connection to stabilize
+      await new Promise(resolve => setTimeout(resolve, 500));
+      
       const ltPage = await browser.newPage(testInfo.project.use);
+      
+      // Wait for LambdaTest session to register
+      await new Promise(resolve => setTimeout(resolve, 1000));
       
       // Initialize SDK helpers with LambdaTest page
       const wait = new WaitHelpers(ltPage);
@@ -102,7 +112,7 @@ export const test = base.extend<{
       
       await use(ltPage);
 
-      // Mark test status at the end
+      // Mark test status at the end with retry logic
       const testStatus = {
         action: "setTestStatus",
         arguments: {
@@ -110,10 +120,29 @@ export const test = base.extend<{
           remark: getErrorMessage(testInfo, ["error", "message"]),
         },
       };
-      await ltPage.evaluate(() => {},
-        `lambdatest_action: ${JSON.stringify(testStatus)}`);
-      await ltPage.close();
-      await browser.close();
+      
+      // Retry status marking up to 3 times
+      let statusMarked = false;
+      for (let attempt = 1; attempt <= 3 && !statusMarked; attempt++) {
+        try {
+          await ltPage.evaluate(() => {}, `lambdatest_action: ${JSON.stringify(testStatus)}`);
+          statusMarked = true;
+        } catch (error) {
+          if (attempt < 3) {
+            await new Promise(resolve => setTimeout(resolve, 1000)); // Wait 1s before retry
+          }
+        }
+      }
+      
+      // Wait to ensure status is sent to LambdaTest servers
+      await new Promise(resolve => setTimeout(resolve, 2000));
+      
+      try {
+        await ltPage.close();
+        await browser.close();
+      } catch (error) {
+        // Ignore close errors
+      }
     } else {
       // Run tests locally when not using LambdaTest project
       await use(page);
