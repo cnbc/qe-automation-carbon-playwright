@@ -6,24 +6,31 @@ import path from 'path';
 const BUILD_NAME = process.env.LT_BUILD_NAME || `Carbon Playwright Tests - ${new Date().toLocaleString('en-US', { month: 'short', day: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false }).replace(/,/g, '')}`;
 
 // LambdaTest capabilities
+const ltOptions: Record<string, any> = {
+  platform: "MacOS Tahoe",
+  build: BUILD_NAME,
+  name: "Carbon Automation Tests",
+  user: process.env.LT_USER,
+  accessKey: process.env.LT_PASS,
+  network: true,
+  video: true,
+  console: true,
+  visual: true,
+  tunnel: false,
+  tunnelName: "",
+  geoLocation: "US",
+};
+
+// If you really need to force a specific window size in LambdaTest, set LT_RESOLUTION, e.g. "1920x1080".
+// Otherwise we do NOT hardcode it (viewport/window sizing is handled by Playwright config + page viewport logic).
+if (process.env.LT_RESOLUTION) {
+  ltOptions.resolution = process.env.LT_RESOLUTION;
+}
+
 const capabilities = {
   browserName: "Chrome",
   browserVersion: "latest",
-  "LT:Options": {
-    platform: "MacOS Tahoe",
-    build: BUILD_NAME,
-    name: "Carbon Automation Tests",
-    user: process.env.LT_USER,
-    accessKey: process.env.LT_PASS,
-    network: true,
-    video: true,
-    console: true,
-    visual: true,
-    tunnel: false,
-    tunnelName: "",
-    geoLocation: "US",
-    resolution: "1920x1080", // Browser window resolution
-  },
+  "LT:Options": ltOptions,
 };
 
 // Modify capabilities dynamically based on project and test info
@@ -78,6 +85,8 @@ const getErrorMessage = (obj: any, keys: string[]) =>
     (obj, key) => (typeof obj == "object" ? obj[key] : undefined),
     obj
   );
+
+
 
 // Extend base test with LambdaTest capabilities and SDK helpers
 export const test = base.extend<{

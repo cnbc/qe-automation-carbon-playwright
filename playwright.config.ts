@@ -4,6 +4,31 @@ import * as path from 'path';
 // Load environment variables
 dotenv.config({ path: path.resolve(__dirname, '.env') });
 
+// Environment / baseURL resolution:
+// - Prefer explicit BASE_URL (most flexible)
+// - Else allow passing an environment name (ENV or `npm test --env=stg` -> npm_config_env)
+const envName =
+  (process.env.ENV ||
+    process.env.PW_ENV ||
+    process.env.npm_config_env ||
+    'prod')
+    .toString()
+    .trim()
+    .toLowerCase();
+
+const envBaseUrls: Record<string, string> = {
+  //prod: 'https://www.cnbc.com',
+  //production: 'https://www.cnbc.com',
+  stg01: 'https://stg-01carbon.cnbc.com',
+  stg02: 'https://stg-02carbon.cnbc.com',
+  stg03: 'https://stg-03carbon.cnbc.com',
+};
+
+const baseURL =
+  process.env.BASE_URL?.toString().trim() ||
+  envBaseUrls[envName] ||
+  'https://stg-02carbon.cnbc.com';
+
 // Function to get capabilities with dynamic test name
 const getCapabilities = (testName?: string) => ({
   'browserName': 'Chrome',
@@ -53,7 +78,7 @@ export default defineConfig({
   /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
   use: {
     /* Base URL to use in actions like `await page.goto('')`. */
-    // baseURL: 'http://localhost:3000',
+    baseURL,
 
     /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
     trace: 'on-first-retry',
@@ -61,20 +86,35 @@ export default defineConfig({
     actionTimeout: 30 * 1000, // 30 seconds for each action
   },
 
+
   /* Configure projects for major browsers */
   projects: [
      // LambdaTest Chrome on MacOS Tahoe  (connection handled by fixture)
-    /*{
+    {
       name: 'lambdatest-chrome-macos-tahoe',
       use: {
         ...devices['Desktop Chrome'],
+        // Start maximized: requires `viewport: null` AND no `deviceScaleFactor`.
+        // The device preset includes `deviceScaleFactor`, so we explicitly unset it.
+        deviceScaleFactor: undefined,
+        viewport: null,
+        launchOptions: {
+          args: ['--start-maximized'], // optional, useful for Chromium
+        },
       },
       // Limit parallel execution for LambdaTest to avoid concurrency issues
       fullyParallel: true,
-    },*/
+    },
     {
-      name: 'chromium',
-      use: { ...devices['Desktop Chrome'] },
+      name: 'chrome',
+      use: {
+        ...devices['Desktop Chrome'],
+        deviceScaleFactor: undefined,
+        viewport: null,
+        launchOptions: {
+          args: ['--start-maximized'], // optional, useful for Chromium
+        },
+      },
       fullyParallel: true,
     },
 
