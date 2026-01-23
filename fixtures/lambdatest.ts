@@ -3,27 +3,34 @@ import { WaitHelpers, BrowserActions, MouseActions } from '@cnbc/playwright-sdk'
 import path from 'path';
 
 // Generate build name once at module load time (not per test)
-const BUILD_NAME = process.env.LT_BUILD_NAME || `CNBC Playwright Web Tests - ${new Date().toLocaleString('en-US', { month: 'short', day: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false }).replace(/,/g, '')}`;
+const BUILD_NAME = process.env.LT_BUILD_NAME || `Carbon Playwright Tests - ${new Date().toLocaleString('en-US', { month: 'short', day: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false }).replace(/,/g, '')}`;
 
 // LambdaTest capabilities
+const ltOptions: Record<string, any> = {
+  platform: "MacOS Tahoe",
+  build: BUILD_NAME,
+  name: "Carbon Automation Tests",
+  user: process.env.LT_USER,
+  accessKey: process.env.LT_PASS,
+  network: true,
+  video: true,
+  console: true,
+  visual: true,
+  tunnel: false,
+  tunnelName: "",
+  geoLocation: "US",
+};
+
+// If you really need to force a specific window size in LambdaTest, set LT_RESOLUTION, e.g. "1920x1080".
+// Otherwise we do NOT hardcode it (viewport/window sizing is handled by Playwright config + page viewport logic).
+if (process.env.LT_RESOLUTION) {
+  ltOptions.resolution = process.env.LT_RESOLUTION;
+}
+
 const capabilities = {
   browserName: "Chrome",
   browserVersion: "latest",
-  "LT:Options": {
-    platform: "Windows 11",
-    build: BUILD_NAME,
-    name: "CNBC Test",
-    user: process.env.LT_USER,
-    accessKey: process.env.LT_PASS,
-    network: true,
-    video: true,
-    console: true,
-    visual: true,
-    tunnel: false,
-    tunnelName: "",
-    geoLocation: "US",
-    resolution: "1920x1080", // Browser window resolution
-  },
+  "LT:Options": ltOptions,
 };
 
 // Modify capabilities dynamically based on project and test info
@@ -59,8 +66,12 @@ const modifyCapabilities = (configName: string, testName: string) => {
       const platformMap: { [key: string]: string } = {
         'win11': 'Windows 11',
         'win10': 'Windows 10',
-        'macos': 'macOS Big Sur',
-        'linux': 'Ubuntu 20.04'
+        'macos-tahoe': 'MacOS Tahoe',
+        'macos-ventura': 'macOS Ventura',
+        'macos-sonoma': 'macOS Sonoma',
+        'macos-monterey': 'macOS Monterey',
+        'macos-sequoia': 'MacOS Sequoia',
+
       };
       capabilities["LT:Options"]["platform"] = platformMap[platformPart] || capabilities["LT:Options"]["platform"];
     }
@@ -75,6 +86,8 @@ const getErrorMessage = (obj: any, keys: string[]) =>
     obj
   );
 
+
+
 // Extend base test with LambdaTest capabilities and SDK helpers
 export const test = base.extend<{
   wait: WaitHelpers;
@@ -82,6 +95,8 @@ export const test = base.extend<{
   msa: MouseActions;
 }>({
   page: async ({ page, playwright }, use, testInfo) => {
+    // Expose workerIndex for helpers running outside testInfo context (e.g. in reusable methods).
+    process.env.PW_WORKER_INDEX = String(testInfo.workerIndex);
     let fileName = testInfo.file.split(path.sep).pop();
     
     // Configure LambdaTest platform for cross-browser testing
