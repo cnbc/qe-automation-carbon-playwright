@@ -95,6 +95,8 @@ export const test = base.extend<{
   msa: MouseActions;
 }>({
   page: async ({ page, playwright }, use, testInfo) => {
+    // Expose workerIndex for helpers running outside testInfo context (e.g. in reusable methods).
+    process.env.PW_WORKER_INDEX = String(testInfo.workerIndex);
     let fileName = testInfo.file.split(path.sep).pop();
     
     // Configure LambdaTest platform for cross-browser testing
