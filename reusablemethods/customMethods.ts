@@ -62,7 +62,7 @@ export type Credential = { username: string; password: string };
 
 function readWorkerIndexFromEnv(): number {
   const raw = process.env.PW_WORKER_INDEX ?? process.env.TEST_WORKER_INDEX ?? process.env.PLAYWRIGHT_WORKER_INDEX ?? '';
-  const n = Number.parseInt(raw, 5);
+  const n = Number.parseInt(raw, 10);
   return Number.isFinite(n) ? n : 0;
 }
 

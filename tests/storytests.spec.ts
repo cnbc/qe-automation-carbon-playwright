@@ -1,5 +1,5 @@
 import { test } from '../fixtures/lambdatest';
-import { CustomMethods } from '../reusablemethods/customMethods';
+import * as customMethods from '../reusablemethods/customMethods';
 
 const ENV = 'stg02';
 const TAGS: string[] = ['@C175315430', '@Story', '@Regression', '@High', '@BAT', '@MVP'];
@@ -11,9 +11,9 @@ const TAGS: string[] = ['@C175315430', '@Story', '@Regression', '@High', '@BAT',
 test.describe('Carbon Story Tests', () => {
   
   test('C175315430 - Verify user is able to login into Carbon', { tag: TAGS }, async ({ page }) => {
-    const customMethods = new CustomMethods(page);
-    await customMethods.openPublishPageURLViper(ENV);
-    await customMethods.login(ENV);
+    const cm = new customMethods.CustomMethods(page);
+    await cm.openPublishPageURLViper(ENV);
+    await cm.login(ENV);
     
 
 
