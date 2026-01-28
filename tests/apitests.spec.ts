@@ -7,6 +7,7 @@ import * as path from 'path';
 test.describe('Viper API Tests', () => {
   let api: APIRequestContext;
   const defaultEnv = 'stg02';
+  const TAGS: string[] = ['@API', '@Regression', '@High'];
 
   test.beforeAll(async ({ playwright }, testInfo) => {
     const env = process.env.ENV || defaultEnv;
@@ -78,7 +79,7 @@ test.describe('Viper API Tests', () => {
     await api?.dispose();
   });
 
-  test('GET /api/v1/s3/asset returns JSON', { tag: ['@API', '@Regression', '@High'] }, async () => {
+  test('GET /api/v1/s3/asset returns JSON', { tag: ['@C228030168', ...TAGS] }, async () => {
     const env = process.env.ENV || defaultEnv;
     const baseUrl = customMethods.viperAppUrl(env);
 
@@ -119,7 +120,7 @@ test.describe('Viper API Tests', () => {
     console.log(JSON.stringify(result.json, null, 2));
   });
 
-  test('POST /api/v1/s3/asset/presigned returns JSON', { tag: ['@API', '@Regression', '@High'] }, async () => {
+  test('POST /api/v1/s3/asset/presigned returns JSON', { tag: ['@C228030184', ...TAGS] }, async () => {
     const env = process.env.ENV || defaultEnv;
     const baseUrl = customMethods.viperAppUrl(env);
     const url = new URL('/api/v1/s3/asset/presigned', baseUrl).toString();
