@@ -4377,4 +4377,12 @@ export class SITPage {
   carbonTaskVideoImage(): Locator {
     return this.page.locator("//i[@class='icon icon-tasks']");
   }
+
+  btnSaveNewConfig(): Locator {
+    return this.page.locator("//span[@class='mat-button-wrapper' and contains(text(),'Save')]");
+  }
+
+
+
+
 }

@@ -1,5 +1,5 @@
-import type { Locator, Page } from '@playwright/test';
-import * as PO from '../pageobjects';
+import { expect, type Locator, type Page } from '@playwright/test';
+import * as PO from '../pageobjects/pageobjectsindex';
 
 export type CarbonEnvName = string;
 
@@ -103,7 +103,49 @@ export class CustomMethods {
     console.log(`[customMethods] ${message}`);
   }
 
-  private async waitForPageToLoadCMS() {
+  getTimeStamp(): string {
+    this.log('Entered getTimeStamp method');
+    try {
+      const now = new Date();
+      const pad = (n: number, width: number) => n.toString().padStart(width, '0');
+
+      // Match Java pattern: "yy-MM-dd-HH-mm-ss-SSS" (local time)
+      const date =
+        `${pad(now.getFullYear() % 100, 2)}-` +
+        `${pad(now.getMonth() + 1, 2)}-` +
+        `${pad(now.getDate(), 2)}-` +
+        `${pad(now.getHours(), 2)}-` +
+        `${pad(now.getMinutes(), 2)}-` +
+        `${pad(now.getSeconds(), 2)}-` +
+        `${pad(now.getMilliseconds(), 3)}`;
+
+      this.log(`Returning timestamp: ${date} for creating a unique name of the asset`);
+      this.log('Exited getTimeStamp method');
+      return date;
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : String(e);
+      const full = `Not Exited getTimeStamp Method : ${msg}`;
+      this.log(full);
+      throw new Error(full);
+    }
+  }
+
+  async waitForTime(ms: number, reason?: string): Promise<void> {
+    if (!Number.isFinite(ms) || ms < 0) {
+      throw new Error(`waitForTime: "ms" must be a non-negative finite number. Received: ${ms}`);
+    }
+    this.log(`Waiting for ${ms}ms${reason ? ` (${reason})` : ''}`);
+    await this.page.waitForTimeout(ms);
+  }
+
+  async waitForSeconds(seconds: number, reason?: string): Promise<void> {
+    if (!Number.isFinite(seconds) || seconds < 0) {
+      throw new Error(`waitForSeconds: "seconds" must be a non-negative finite number. Received: ${seconds}`);
+    }
+    await this.waitForTime(Math.round(seconds * 1000), reason);
+  }
+
+  async waitForPageToLoadCMS() {
     await this.page.waitForLoadState('domcontentloaded');
   }
 
