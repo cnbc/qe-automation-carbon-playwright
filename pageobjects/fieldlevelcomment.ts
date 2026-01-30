@@ -9,23 +9,26 @@ export class FieldLevelCommentPage {
       this.base = new BasePage(page, 'FieldLevelCommentPage');
   }
 
+  /**
+   * Safely quote arbitrary text for XPath string literals.
+   * Handles cases where the text contains single and/or double quotes.
+   */
+  private xpathTextLiteral(text: string): string {
+    if (!text.includes("'")) return `'${text}'`;
+    if (!text.includes('"')) return `"${text}"`;
+    // Fallback: concat('foo', '"', 'bar', "'", 'baz')
+    const parts = text.split("'").flatMap((p, i, arr) => (i < arr.length - 1 ? [p, "'"] : [p]));
+    return `concat(${parts
+      .map((p) => (p === "'" ? `"'"` : `'${p}'`))
+      .join(', ')})`;
+  }
+
   logStep(message: string) {
     this.base.logStep(message);
   }
 
   logInfo(message: string) {
     this.base.logInfo(message);
-  }
-
-  /**
-   * Opens a path using Playwright `baseURL` (configured via ENV/BASE_URL).
-   * Pass an absolute URL only when you intentionally want to bypass baseURL.
-   */
-  async open(pathOrUrl: string = '/', browserActions?: BrowserActions) {
-    this.logStep(`Opening ${pathOrUrl}`);
-    await this.base.goto(pathOrUrl);
-    // Browser is maximized in the fixture; no per-test viewport sizing needed here.
-    void browserActions;
   }
 
   async waitForLoaded(wait: WaitHelpers) {
@@ -39,49 +42,96 @@ export class FieldLevelCommentPage {
     await wait.forMilliseconds(2000);
   }
 
-  riverModule(): Locator {
-    // Avoid XPath: use class-substring selectors to handle multi-class elements.
-    return this.page.locator("[class*='RiverPlus-riverPlusContainer']");
+  //Field Level Comment Page Objects
+  btnCommentContainer(): Locator {
+    return this.page.locator('//button[@mattooltip="Comments"]//mat-icon[@matbadgesize="small"]');
+  }
+  commentedText(): Locator {
+    return this.page.locator('//mat-panel-title[contains(@class,"mat-expansion-panel-header-title")]//b');
+  }
+  commentedBy(): Locator {
+    return this.page.locator('//div[@class="comment-header"]//b');
+  }
+  commentedDate(): Locator {
+    return this.page.locator('(//div[@class="comment-header"]//span)[1]');
+  }
+  commentActions(): Locator {
+    return this.page.locator('//div[@class="comment-header"]//span[@class="comment-action"]//button');
+  }
+  commentContent(): Locator {
+    return this.page.locator('//div[@class="comment-content-inner"]//p');
+  }
+  commentProseMirror(): Locator {
+    return this.page.locator('//div[@class="comment-editor"]//div[@class="ProseMirror"]//p');
+  }
+  commentCancelButton(): Locator {
+    return this.page.locator('//div[contains(@class,"comment-edit-actions")]//span[contains(text(),"Cancel")]');
+  }
+  commentPostButton(): Locator {
+    return this.page.locator('//div[contains(@class,"comment-edit-actions")]//span[contains(text(),"Post")]');
+  }
+  
+  commentEditActionsMarkAsResolved(): Locator {
+    return this.page.locator('//button[@role="menuitem" and contains(text(),"Mark as resolved")]');
+  }
+  commentEditActionsDelete(): Locator {
+    return this.page.locator('//button[@role="menuitem" and contains(text(),"Delete")]');
+  }
+  commentEditActionsEdit(): Locator {
+    return this.page.locator('//button[@role="menuitem" and contains(text(),"Edit")]');
   }
 
-  riverStories(): Locator {
-    return this.riverModule().locator("[class*='RiverPlusCard-container']");
+  commentResolveThisThread(): Locator {
+    return this.page.locator('//button[@mattooltip="Resolve this thread"]//mat-icon');
+  }
+  
+  commentResolvedTooltip(): Locator {
+    return this.page.locator('//span[@mattooltipclass="resolved-tooltip"]');
   }
 
-  breakerStories(): Locator {
+  commentsPurpleDot(): Locator {
+    return this.page.locator('//span[contains(@class,"purple-dot")]');
+  }
+  noOfComments(): Locator {
+    return this.page.locator('//mat-panel-description');
+  }
+  expandComments(): Locator {
+    return this.page.locator('//mat-icon[contains(text(),"keyboard_arrow_right")]');
+  }
+  collapseComments(): Locator {
+    return this.page.locator('//mat-icon[contains(text(),"keyboard_arrow_down")]');
+  }
+
+  editedCommentTimestamp(): Locator {
+    return this.page.locator('//span[contains(@class,"comment-time") and contains(text(),"Edited")]');
+  }
+
+  commentHighlightedTextPrimary(highlightedText: string): Locator {
+    const lit = this.xpathTextLiteral(highlightedText);
     return this.page.locator(
-      "[class*='RiverPlusBreaker-container'] [class*='RiverPlusCard-breakerCardContainer']"
+      `//span[contains(@class,"comment-highlight-primary") and text()=${lit}]`
+    );
+  }
+  commentHighlightedTextSecondary(highlightedText: string): Locator {
+    const lit = this.xpathTextLiteral(highlightedText);
+    return this.page.locator(
+      `//span[contains(@class,"comment-highlight-secondary") and text()=${lit}]`
     );
   }
 
-  firstStoryTitleLink(): Locator {
-    return this.riverModule().locator("[class*='RiverHeadline'] a").first();
+  /**
+   * Sticky drawer (outer container) shown in your provided outerHTML:
+   * `<div class="c-sticky-drawer-body"> ... </div>`
+   */
+  stickyDrawerBody(): Locator {
+    return this.page.locator('div.c-sticky-drawer-body').first();
   }
 
-  firstStoryThumbnail(): Locator {
-    // Some pages wrap the thumbnail in an anchor; we just need it visible.
-    return this.riverModule().locator("[class*='RiverThumbnail-imageThumbnail']").first();
+  /** `<div class="c-sticky-drawer-form ...">` inside the sticky drawer */
+  stickyDrawerForms(): Locator {
+    return this.stickyDrawerBody().locator('div.c-sticky-drawer-form');
   }
 
-  firstStoryAuthorLink(): Locator {
-    return this.riverModule().locator("[class*='RiverByline-authorByline'] a").first();
-  }
 
-  async expectRiverVisible(timeoutMs: number = 20_000) {
-    this.logStep('Verifying River Module is displayed');
-    await expect(this.riverModule()).toBeVisible({ timeout: timeoutMs });
-  }
-
-  async expectFirstStoryElementsVisible() {
-    this.logStep('Verifying first story elements');
-    await expect(this.firstStoryTitleLink()).toBeVisible();
-    this.logInfo('Story 1 Title is displayed');
-
-    await expect(this.firstStoryThumbnail()).toBeVisible();
-    this.logInfo('Story 1 Thumbnail is displayed');
-
-    await expect(this.firstStoryAuthorLink()).toBeVisible();
-    this.logInfo('Story 1 Author is displayed');
-  }
 }
 
