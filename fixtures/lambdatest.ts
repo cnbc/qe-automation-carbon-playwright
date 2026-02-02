@@ -1,4 +1,4 @@
-import { test as base, chromium } from '@playwright/test';
+import { test as base, chromium, type Browser, type BrowserContext, type Page } from '@playwright/test';
 import { WaitHelpers, BrowserActions, MouseActions } from '@cnbc/playwright-sdk';
 import path from 'path';
 
@@ -90,77 +90,116 @@ const getErrorMessage = (obj: any, keys: string[]) =>
 
 // Extend base test with LambdaTest capabilities and SDK helpers
 export const test = base.extend<{
+  browser: Browser;
+  context: BrowserContext;
   wait: WaitHelpers;
   browserActions: BrowserActions;
   msa: MouseActions;
 }>({
-  page: async ({ page, playwright }, use, testInfo) => {
-    // Expose workerIndex for helpers running outside testInfo context (e.g. in reusable methods).
-    process.env.PW_WORKER_INDEX = String(testInfo.workerIndex);
-    let fileName = testInfo.file.split(path.sep).pop();
-    
-    // Configure LambdaTest platform for cross-browser testing
-    if (testInfo.project.name.match(/lambdatest/)) {
-      modifyCapabilities(
-        testInfo.project.name,
-        `${testInfo.title} - ${fileName}`
-      );
+  browser: [
+    async ({}, use, workerInfo) => {
+      // Expose workerIndex for helpers running outside testInfo context (e.g. in reusable methods).
+      process.env.PW_WORKER_INDEX = String(workerInfo.workerIndex);
 
-      const browser = await chromium.connect({
-        wsEndpoint: `wss://cdp.lambdatest.com/playwright?capabilities=${encodeURIComponent(
-          JSON.stringify(capabilities)
-        )}`,
+      const projectName = workerInfo.project.name;
+
+      if (projectName.match(/lambdatest/)) {
+        // Configure LambdaTest platform (once per worker connection).
+        modifyCapabilities(projectName, `Worker ${workerInfo.workerIndex} - ${projectName}`);
+
+        const ltBrowser = await chromium.connect({
+          wsEndpoint: `wss://cdp.lambdatest.com/playwright?capabilities=${encodeURIComponent(
+            JSON.stringify(capabilities),
+          )}`,
+        });
+
+        // Wait for connection to stabilize
+        await new Promise((resolve) => setTimeout(resolve, 750));
+
+        try {
+          await use(ltBrowser);
+        } finally {
+          try {
+            await ltBrowser.close();
+          } catch {
+            // ignore
+          }
+        }
+        return;
+      }
+
+      // Local run: launch one browser per worker (Playwright contexts will be per-test)
+      const useOptions = workerInfo.project.use as any;
+      const launchOptions = useOptions.launchOptions ?? {};
+      const headless = useOptions.headless;
+
+      const localBrowser = await chromium.launch({
+        ...launchOptions,
+        ...(typeof headless === 'boolean' ? { headless } : {}),
       });
 
-      // Wait for connection to stabilize
-      await new Promise(resolve => setTimeout(resolve, 500));
-      
-      const ltPage = await browser.newPage(testInfo.project.use);
-      
-      // Wait for LambdaTest session to register
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      // Initialize SDK helpers with LambdaTest page
-      const wait = new WaitHelpers(ltPage);
-      const browserActions = new BrowserActions(ltPage);
-      const msa = new MouseActions(ltPage);
-      
-      await use(ltPage);
+      try {
+        await use(localBrowser);
+      } finally {
+        await localBrowser.close();
+      }
+    },
+    { scope: 'worker' },
+  ],
 
-      // Mark test status at the end with retry logic
+  context: async ({ browser }, use, testInfo) => {
+    // Expose workerIndex for helpers running outside testInfo context (e.g. in reusable methods).
+    process.env.PW_WORKER_INDEX = String(testInfo.workerIndex);
+
+    // Fresh context per test (safe for parallel workers/machines)
+    const context = await browser.newContext(testInfo.project.use);
+    try {
+      await use(context);
+    } finally {
+      await context.close();
+    }
+  },
+
+  page: async ({ context }, use, testInfo) => {
+    const page: Page = await context.newPage();
+
+    // Wait for LambdaTest session to register (only relevant for LT projects)
+    if (testInfo.project.name.match(/lambdatest/)) {
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+    }
+
+    await use(page);
+
+    // Mark LambdaTest status at the end with retry logic.
+    if (testInfo.project.name.match(/lambdatest/)) {
       const testStatus = {
-        action: "setTestStatus",
+        action: 'setTestStatus',
         arguments: {
           status: testInfo.status,
-          remark: getErrorMessage(testInfo, ["error", "message"]),
+          remark: getErrorMessage(testInfo, ['error', 'message']),
         },
       };
-      
-      // Retry status marking up to 3 times
+
       let statusMarked = false;
       for (let attempt = 1; attempt <= 3 && !statusMarked; attempt++) {
         try {
-          await ltPage.evaluate(() => {}, `lambdatest_action: ${JSON.stringify(testStatus)}`);
+          await page.evaluate(() => {}, `lambdatest_action: ${JSON.stringify(testStatus)}`);
           statusMarked = true;
-        } catch (error) {
+        } catch {
           if (attempt < 3) {
-            await new Promise(resolve => setTimeout(resolve, 1000)); // Wait 1s before retry
+            await new Promise((resolve) => setTimeout(resolve, 1000));
           }
         }
       }
-      
-      // Wait to ensure status is sent to LambdaTest servers
-      await new Promise(resolve => setTimeout(resolve, 2000));
-      
-      try {
-        await ltPage.close();
-        await browser.close();
-      } catch (error) {
-        // Ignore close errors
-      }
-    } else {
-      // Run tests locally when not using LambdaTest project
-      await use(page);
+
+      // Give LambdaTest time to receive the status.
+      await new Promise((resolve) => setTimeout(resolve, 1500));
+    }
+
+    try {
+      await page.close();
+    } catch {
+      // ignore
     }
   },
   

@@ -175,7 +175,7 @@ export class FieldLevelCommentPage {
 
   commentMoreOptions(value: number): Locator {
     return this.page.locator(
-      "(//button[@mattooltip='Comment Edit Actions']//mat-icon[text()='more_vert'])[" +
+      "(//span[@class='comment-action']//mat-icon[text()='more_horiz'])[" +
         value +
         "]",
     );
@@ -193,6 +193,12 @@ export class FieldLevelCommentPage {
     return this.page.locator(
       "//div[contains(@class,'comment-content resolved')]",
     );
+  }
+  commentAllResolvedGreenCircle(): Locator {
+    return this.page.locator("//mat-icon[@matbadgesize='small' and contains(text(),'check_circle_outline')]");
+  }
+  commentResolvedGreenCircleIndividual(commentText: String): Locator {
+    return this.page.locator("//div[contains(@class,'comment-content resolved')]//div//p[text()='" + commentText + "']");
   }
 
   commentHighlight(value: string): Locator {
