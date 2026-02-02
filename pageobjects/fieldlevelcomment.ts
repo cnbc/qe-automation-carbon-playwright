@@ -62,7 +62,10 @@ export class FieldLevelCommentPage {
     return this.page.locator('//div[@class="comment-content-inner"]//p');
   }
   commentProseMirror(): Locator {
-    return this.page.locator('//div[@class="comment-editor"]//div[@class="ProseMirror"]//p');
+    // ProseMirror is a rich-text editor; target the actual contenteditable container (not the inner <p>).
+    return this.page.locator(
+      "//div[contains(@class,'comment-editor')]//div[contains(@class,'ProseMirror') and @contenteditable='true']",
+    );
   }
   commentCancelButton(): Locator {
     return this.page.locator('//div[contains(@class,"comment-edit-actions")]//span[contains(text(),"Cancel")]');
@@ -130,6 +133,150 @@ export class FieldLevelCommentPage {
   /** `<div class="c-sticky-drawer-form ...">` inside the sticky drawer */
   stickyDrawerForms(): Locator {
     return this.stickyDrawerBody().locator('div.c-sticky-drawer-form');
+  }
+
+   // Page Object Locators for Field Level Commenting
+  // TODO: Update these locators based on actual HTML structure
+  btnAddComment(value: number): Locator {
+    return this.page.locator(
+      "(//carbon-comment-dialog-launcher[contains(@class,'comment-widget')]//button//mat-icon[@role='img'])[" +
+        value +
+        "]",
+    );
+  }
+
+  commentBadge(value: number): Locator {
+    return this.page.locator(
+      "(//carbon-comment-dialog-launcher[contains(@class,'comment-widget')]//button//mat-icon[@role='img'])[" +
+        value +
+        "]//span[contains(@id,'mat-badge-content')]",
+    );
+  }
+
+  /**
+   * Returns the numeric badge count for a comment icon.
+   * Important: the inner `mat-badge-content` span may be absent when the count is 0/empty,
+   * so this method reads it safely without waiting on the span to exist.
+   */
+  async commentBadgeCount(value: number): Promise<number> {
+    const icon = this.btnAddComment(value);
+    await icon.waitFor({ state: 'attached', timeout: 30_000 });
+
+    const raw = await icon.evaluate((el) => {
+      const span =
+        (el as HTMLElement).querySelector('span[id*="mat-badge-content"]') ??
+        (el as HTMLElement).querySelector('span.mat-badge-content');
+      return (span?.textContent ?? '').trim();
+    });
+
+    const n = Number.parseInt(raw || '0', 10);
+    return Number.isFinite(n) ? n : 0;
+  }
+
+  commentMoreOptions(value: number): Locator {
+    return this.page.locator(
+      "(//button[@mattooltip='Comment Edit Actions']//mat-icon[text()='more_vert'])[" +
+        value +
+        "]",
+    );
+  }
+
+  noOfCommentContentOptions(): Locator {
+    return this.page.locator("//div[contains(@class,'comment-content')]");
+  }
+  noOfCommentContentOptionsEdited(): Locator {
+    return this.page.locator(
+      "//div[contains(@class,'comment-content edited')]",
+    );
+  }
+  noOfCommentContentOptionsResolved(): Locator {
+    return this.page.locator(
+      "//div[contains(@class,'comment-content resolved')]",
+    );
+  }
+
+  commentHighlight(value: string): Locator {
+    return this.page.locator(
+      "//span[@class='comment-highlight' and text()='" + value + "']",
+    );
+  }
+
+  noOfMoreMenuOptions(): Locator {
+    return this.page.locator(
+      "(//button[@mattooltip='Comment Edit Actions']//mat-icon[text()='more_vert'])",
+    );
+  }
+  commentMarkAsResolved(): Locator {
+    return this.page.locator(
+      "//div[@class='cdk-overlay-pane']//button[contains(text(),'Mark as resolved')]",
+    );
+  }
+  commentEdit(): Locator {
+    return this.page.locator(
+      "//div[@class='cdk-overlay-pane']//button[contains(text(),'Edit')]",
+    );
+  }
+  commentDelete(): Locator {
+    return this.page.locator(
+      "//div[@class='cdk-overlay-pane']//button[contains(text(),'Delete')]",
+    );
+  }
+  commentList(): Locator {
+    return this.page.locator(
+      "(//button[@mattooltip='Comment Edit Actions']//mat-icon[text()='more_vert'])",
+    );
+  }
+  txtCommentInput(): Locator {
+    return this.page.locator(
+      "//div[contains(@class,'comment-editor')]//div[contains(@class,'ProseMirror') and @contenteditable='true']",
+    );
+  }
+  btnPostComment(): Locator {
+    return this.page.locator(
+      "//div[@class='comment-edit-actions']//button//span[text()='Post']",
+    );
+  }
+  btnSaveComment(): Locator {
+    return this.page.locator(
+      "//div[contains(@class,'comment-edit-actions')]//button//span[text()='Save']",
+    );
+  }
+  btnCancelComment(): Locator {
+    return this.page.locator(
+      "(//div[contains(@class,'comment-edit-actions')]//button//span[text()='Cancel'])[1]",
+    );
+  }
+  btnResolveAllComment(): Locator {
+    return this.page.locator(
+      "//mat-chip[@mattooltip='Resolve this thread']//span[text()='Resolve all']",
+    );
+  }
+  btnComment_RTESelectionMenu(): Locator {
+    return this.page.locator(
+      "//div[@class='c-rte-floating-menu']//button[contains(@mattooltip,'Comment')]",
+    );
+  }
+  btnComment_RTEMenu(): Locator {
+    return this.page.locator(
+      "//rte-mainmenu//button[contains(@mattooltip,'Comment')]",
+    );
+  }
+  lockedUserName(): Locator {
+    return this.page.locator(
+      "//carbon-user-indicator[@class='ng-star-inserted']//span[text()='c']",
+    );
+  }
+
+  comment_Highlight(value: string): Locator {
+    return this.page.locator(
+      "//span[@class='comment-highlight' and text()='" + value + "']",
+    );
+  }
+
+  comment_AfterSelectedOnce(value: string): Locator {
+    return this.page.locator(
+      "(//span[@class='comment-highlight'])[" + value + "]",
+    );
   }
 
 

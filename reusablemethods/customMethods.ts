@@ -80,6 +80,7 @@ export class CredentialProvider {
     const idx = ((wi % this.credentials.length) + this.credentials.length) % this.credentials.length;
     const cred = this.credentials[idx];
     this.assignedByWorker.set(wi, cred);
+    console.log(`Assigned credentials to worker ${wi}: ${cred.username}`);
     return cred;
   }
 }
@@ -143,6 +144,33 @@ export class CustomMethods {
       throw new Error(`waitForSeconds: "seconds" must be a non-negative finite number. Received: ${seconds}`);
     }
     await this.waitForTime(Math.round(seconds * 1000), reason);
+  }
+
+  /**
+   * Reliable text entry for rich-text/contenteditable editors (e.g., ProseMirror).
+   * Uses click-to-focus + select-all + backspace + keyboard typing.
+   */
+  async typeInContentEditable(
+    editor: Locator,
+    text: string,
+    opts?: { label?: string; timeoutMs?: number; clearFirst?: boolean; delayMs?: number },
+  ): Promise<void> {
+    const label = opts?.label ?? 'contenteditable';
+    const timeoutMs = opts?.timeoutMs ?? 30_000;
+    const clearFirst = opts?.clearFirst ?? true;
+    const delayMs = opts?.delayMs ?? 0;
+
+    this.log(`Typing into ${label}: "${text}"`);
+    await editor.waitFor({ state: 'visible', timeout: timeoutMs });
+    await editor.click({ timeout: timeoutMs });
+
+    if (clearFirst) {
+      const isMac = process.platform === 'darwin';
+      await this.page.keyboard.press(isMac ? 'Meta+A' : 'Control+A');
+      await this.page.keyboard.press('Backspace');
+    }
+
+    await this.page.keyboard.type(text, { delay: delayMs });
   }
 
   async waitForPageToLoadCMS() {

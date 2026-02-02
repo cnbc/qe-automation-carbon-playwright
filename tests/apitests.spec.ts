@@ -154,4 +154,44 @@ test.describe('Viper API Tests', () => {
     expect(presignedUrl, `No presigned URL found in response. Body: ${result.rawText}`).toBeTruthy();
     expect(presignedUrl).toContain('amazonaws.com');
   });
+
+  test('POST /api/v1/log accepts log-message.json and returns 201 Created and json response', { tag: ['@C228061875', ...TAGS] }, async () => {
+    const env = process.env.ENV || defaultEnv;
+    const baseUrl = customMethods.viperAppUrl(env);
+    const url = new URL('/api/v1/log', baseUrl).toString();
+
+    const payloadPath = path.join(__dirname, 'testdata', 'log-message.json');
+    const payloadRaw = await fs.readFile(payloadPath, 'utf8');
+    const payload = JSON.parse(payloadRaw) as { log_type?: string; log_detail?: string };
+
+    expect(payload.log_type, 'log-message.json missing "log_type"').toBeTruthy();
+    expect(payload.log_detail, 'log-message.json missing "log_detail"').toBeTruthy();
+
+    const res = await apiHelpers.postJson(api, url, payload);
+    const status = res.status;
+
+    // Most log endpoints return 200/201/204. Keep it tolerant.
+    expect(
+      status,
+      `Unexpected status for ${url}. content-type=${res.headers['content-type']}. Body: ${res.rawText}`,
+    ).toBeGreaterThanOrEqual(200);
+    expect(status).toBeLessThan(300);
+
+    if (res.rawText && res.headers['content-type']?.includes('application/json')) {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+      const json = JSON.parse(res.rawText);
+      // eslint-disable-next-line no-console
+      console.log(JSON.stringify(json, null, 2));
+    } else {
+      // eslint-disable-next-line no-console
+      console.log(`Response body (non-JSON or empty): ${res.rawText}`);
+    }
+
+
+    expect(status).toBe(201);
+    expect(apiHelpers.getByPath(res.json, ['message'])).toBe('Log entry recorded successfully');
+    expect(apiHelpers.getByPath(res.json, ['log_type'])).toBe(payload.log_type);
+    expect(apiHelpers.getByPath(res.json, ['success'])).toBe(true);
+    
+  });
 });
