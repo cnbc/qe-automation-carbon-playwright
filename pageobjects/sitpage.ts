@@ -93,7 +93,10 @@ export class SITPage {
     );
   }
   edtBody(): Locator {
-    return this.page.locator("//div[@class='ProseMirror']");
+    // ProseMirror body RTE can have extra classes; target the editable container.
+    return this.page
+      .locator("//carbon-rte[@id='field_bodyStructured']//div[contains(@class,'ProseMirror') and @contenteditable='true']")
+      .first();
   }
   edtFeaturedMediaSearch(): Locator {
     return this.page.locator(

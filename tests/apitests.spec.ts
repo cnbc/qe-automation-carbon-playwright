@@ -1,6 +1,6 @@
 import { test, expect, chromium, type APIRequestContext } from '@playwright/test';
-import * as apiHelpers from '../reusablemethods/apiHelpers';
-import * as customMethods from '../reusablemethods/customMethods';
+import * as apiHelpers from '../reusablehelpers/apiHelpers';  
+import * as customHelpers from '../reusablehelpers/customHelpers';
 import * as fs from 'fs/promises';
 import * as path from 'path';
 
@@ -11,8 +11,8 @@ test.describe('Viper API Tests', () => {
 
   test.beforeAll(async ({ playwright }, testInfo) => {
     const env = process.env.ENV || defaultEnv;
-    const baseUrl = customMethods.viperAppUrl(env);
-    const cred = customMethods.CredentialProvider.assignCredentials(testInfo.workerIndex);
+    const baseUrl = customHelpers.viperAppUrl(env);
+    const cred = customHelpers.CredentialProvider.assignCredentials(testInfo.workerIndex);
 
     // UI-login once to establish a session cookie, then reuse it for API requests.
     const browser = await chromium.launch();
@@ -81,7 +81,7 @@ test.describe('Viper API Tests', () => {
 
   test('GET /api/v1/s3/asset returns JSON', { tag: ['@C228030168', ...TAGS] }, async () => {
     const env = process.env.ENV || defaultEnv;
-    const baseUrl = customMethods.viperAppUrl(env);
+    const baseUrl = customHelpers.viperAppUrl(env);
 
     const mediaPrefix = env === 'stg03' ? 'stg-aws03media' : 'stg-aws02media';
     const filename = `${mediaPrefix}/test/Image_JPG with(.) Space.jpg`;
@@ -122,7 +122,7 @@ test.describe('Viper API Tests', () => {
 
   test('POST /api/v1/s3/asset/presigned returns JSON', { tag: ['@C228030184', ...TAGS] }, async () => {
     const env = process.env.ENV || defaultEnv;
-    const baseUrl = customMethods.viperAppUrl(env);
+    const baseUrl = customHelpers.viperAppUrl(env);
     const url = new URL('/api/v1/s3/asset/presigned', baseUrl).toString();
 
     const payloadPath = path.join(__dirname, 'testdata', 'presigned-asset.request.json');
@@ -157,7 +157,7 @@ test.describe('Viper API Tests', () => {
 
   test('POST /api/v1/log accepts log-message.json and returns 201 Created and json response', { tag: ['@C228061875', ...TAGS] }, async () => {
     const env = process.env.ENV || defaultEnv;
-    const baseUrl = customMethods.viperAppUrl(env);
+    const baseUrl = customHelpers.viperAppUrl(env);
     const url = new URL('/api/v1/log', baseUrl).toString();
 
     const payloadPath = path.join(__dirname, 'testdata', 'log-message.json');

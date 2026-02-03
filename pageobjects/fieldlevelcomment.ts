@@ -114,6 +114,9 @@ export class FieldLevelCommentPage {
   editedCommentTimestamp(): Locator {
     return this.page.locator('//span[contains(@class,"comment-time") and contains(text(),"Edited")]');
   }
+  resolvedCommentTimestamp(): Locator {
+    return this.page.locator('//span[contains(@class,"comment-time") and contains(text(),"Resolved")]');
+  }
 
   commentHighlightedTextPrimary(highlightedText: string): Locator {
     const lit = this.xpathTextLiteral(highlightedText);
