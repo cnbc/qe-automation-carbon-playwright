@@ -140,7 +140,7 @@ test.describe('Viper API Tests', () => {
       filetype: payload.filetype,
       method:'PUT',
       message:'Use this URL to upload your file with a PUT request',
-      expires_in: 10,
+      expires_in: 600,
     };
     const validation = apiHelpers.validateJsonFields(result.json, expectations);
     // eslint-disable-next-line no-console

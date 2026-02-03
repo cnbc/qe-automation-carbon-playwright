@@ -46,7 +46,7 @@ test.describe('Carbon Field Level Commenting Tests', () => {
 
     //verify field in right rail comment drawer
     await fieldLevelCommentPage.btnAddComment(1).click();
-    await fieldLevelCommentPage.commentedText().first().textContent().then((text: string | null) => {
+    await fieldLevelCommentPage.commentedFieldName("Headline").first().textContent().then((text: string | null) => {
       console.log("Commented text: " + text);
       expect(text?.toString().trim()).toBe("Headline");
     });
@@ -190,11 +190,82 @@ test.describe('Carbon Field Level Commenting Tests', () => {
     const commentText1 = await addCommentOnFieldLevel(1);
     await fieldLevelCommentPage.btnAddComment(1).click();
     const commentText2 = await addCommentOnFieldLevel(1);
+    await fieldLevelCommentPage.btnAddComment(1).click();
     const commentText3 = await addCommentOnFieldLevel(1);
     await cm.waitForSeconds(5);
 
+    const afterCount = await fieldLevelCommentPage.commentBadgeCount(1);
+    console.log("Comment badge count after adding 3 comments: " + afterCount);
+    expect(afterCount).toBe(beforeCount + 3);
+
+    //Edit a comment
+    await fieldLevelCommentPage.commentMoreOptions(2).click();
+    await fieldLevelCommentPage.commentEditActionsEdit().click();
+    await cm.waitForSeconds(2);
+    let newCommentText = "AutoTest"+ cm.getTimeStamp();
+    await cm.typeInContentEditable(
+      fieldLevelCommentPage.commentProseMirror(),
+      newCommentText,
+      { label: 'Field level comment editor' },
+    );
+    await fieldLevelCommentPage.commentSaveButton().click();
+    await cm.waitForSeconds(2);
+    await fieldLevelCommentPage.commentContent(2).textContent().then((text: string | null) => {
+      console.log("Comment text: " + text);
+      expect(text?.toString().trim()).toBe(newCommentText);
+    });
+
+    //Delete a comment
+    await fieldLevelCommentPage.commentMoreOptions(1).click();
+    await fieldLevelCommentPage.commentEditActionsDelete().click();
+    await cm.waitForSeconds(2);
+    await fieldLevelCommentPage.commentContent(1).textContent().then((text: string | null) => {
+      console.log("Comment text: " + text);
+      expect(text?.toString().trim()).not.toBe(commentText1);
+    });
+    let expected = beforeCount + 2;
+    await expect
+      .poll(async () => fieldLevelCommentPage.commentBadgeCount(1), { timeout: 30_000 })
+      .toBe(expected);
+
+    //Mark as resolved a comment
+    await fieldLevelCommentPage.commentMoreOptions(2).click();
+    await fieldLevelCommentPage.commentEditActionsMarkAsResolved().click();
+    await cm.waitForSeconds(2);
+    expected = beforeCount + 1;
+    await expect
+      .poll(async () => fieldLevelCommentPage.commentBadgeCount(1), { timeout: 30_000 })
+      .toBe(expected);
+
+    //Edit the resolved comment again
+    await fieldLevelCommentPage.commentMoreOptions(2).click();
+    await fieldLevelCommentPage.commentEditActionsEdit().click();
+    await cm.waitForSeconds(2);
+    newCommentText = "AutoTest"+ cm.getTimeStamp();
+    await cm.typeInContentEditable(
+      fieldLevelCommentPage.commentProseMirror(),
+      newCommentText,
+      { label: 'Field level comment editor' },
+    );
+
+    await fieldLevelCommentPage.commentSaveButton().click();
+    await cm.waitForSeconds(2);
+    await fieldLevelCommentPage.commentContent(2).textContent().then((text: string | null) => {
+      console.log("Comment text: " + text);
+      expect(text?.toString().trim()).toBe(newCommentText);
+    });
+
+    expected = beforeCount + 2;
+    await expect
+      .poll(async () => fieldLevelCommentPage.commentBadgeCount(1), { timeout: 30_000 })
+      .toBe(expected);
+
 
   });
+
+
+  //Test cases for Body RTE commenting features ===================================================
+  
 
 
 

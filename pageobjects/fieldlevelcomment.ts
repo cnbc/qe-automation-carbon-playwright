@@ -46,20 +46,23 @@ export class FieldLevelCommentPage {
   btnCommentContainer(): Locator {
     return this.page.locator('//button[@mattooltip="Comments"]//mat-icon[@matbadgesize="small"]');
   }
-  commentedText(): Locator {
-    return this.page.locator('//mat-panel-title[contains(@class,"mat-expansion-panel-header-title")]//b');
+  commentedFieldName(value: String): Locator {
+    return this.page.locator('//mat-panel-title[contains(@class,"mat-expansion-panel-header-title")]//b[text()="' + value + '"]');
   }
-  commentedBy(): Locator {
-    return this.page.locator('//div[@class="comment-header"]//b');
+  commentedTextInBody(value: String): Locator {
+    return this.page.locator('//mat-panel-title[contains(@class,"mat-expansion-panel-header-title")]//i[contains(text(),"' + value + '")]');
   }
-  commentedDate(): Locator {
-    return this.page.locator('(//div[@class="comment-header"]//span)[1]');
+  commentedBy(value: String | number): Locator {
+    return this.page.locator('(//div[@class="comment-header"]//b)[' + value + ']');
   }
-  commentActions(): Locator {
-    return this.page.locator('//div[@class="comment-header"]//span[@class="comment-action"]//button');
+  commentedDate(value: String | number): Locator {
+    return this.page.locator('(//div[@class="comment-header"]//span)[' + value + ']');
   }
-  commentContent(): Locator {
-    return this.page.locator('//div[@class="comment-content-inner"]//p');
+  commentActions(value: String | number): Locator {
+    return this.page.locator('(//div[@class="comment-header"]//span[@class="comment-action"]//button)[' + value + ']');
+  }
+  commentContent(value: String | number): Locator {
+    return this.page.locator('(//div[@class="comment-content-inner"]//p)[' + value + ']');
   }
   commentProseMirror(): Locator {
     // ProseMirror is a rich-text editor; target the actual contenteditable container (not the inner <p>).
@@ -72,6 +75,9 @@ export class FieldLevelCommentPage {
   }
   commentPostButton(): Locator {
     return this.page.locator('//div[contains(@class,"comment-edit-actions")]//span[contains(text(),"Post")]');
+  }
+  commentSaveButton(): Locator {
+    return this.page.locator('//div[contains(@class,"comment-edit-actions")]//span[contains(text(),"Save")]');
   }
   
   commentEditActionsMarkAsResolved(): Locator {
