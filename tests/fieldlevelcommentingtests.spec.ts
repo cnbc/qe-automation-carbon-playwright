@@ -1,4 +1,5 @@
-import { test, expect } from '../fixtures/lambdatest';
+//import { test, expect } from '../fixtures/lambdatest';
+import { test, expect } from '@playwright/test';
 import * as RM from '../reusableHelpers/reusablehelpersindex';
 import * as PO from '../pageobjects/pageobjectsindex';
 

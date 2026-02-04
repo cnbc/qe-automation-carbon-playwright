@@ -1,4 +1,4 @@
-import { expect, type Locator, type Page } from '@playwright/test';
+import { expect, type Locator, type Page, type BrowserContext, Browser } from '@playwright/test';
 import * as PO from '../pageobjects/pageobjectsindex';
 
 export type CarbonEnvName = string;
@@ -550,10 +550,22 @@ export class CustomHelpers {
         console.log(`${locator.toString()} has text content [${String(expectedValue)}]`);
         break;
       }
+      case 'TEXT_CONTAINS': {
+        await expect(locator, `${locator.toString()} does not contain text content`).toContainText(String(expectedValue));
+        // eslint-disable-next-line no-console
+        console.log(`${locator.toString()} contains text content [${String(expectedValue)}]`);
+        break;
+      }
       case 'VALUE': {
         await expect(locator, `${locator.toString()} does not have value`).toHaveValue(String(expectedValue));
         // eslint-disable-next-line no-console
         console.log(`${locator.toString()} has value [${String(expectedValue)}]`);
+        break;
+      }
+      case 'VALUE_CONTAINS': {
+        await expect(locator.getAttribute("value"), `${locator.toString()} does not contain value`).toContain(String(expectedValue));
+        // eslint-disable-next-line no-console
+        console.log(`${locator.toString()} contains value [${String(expectedValue)}]`);
         break;
       }
       case 'SRC': {
@@ -562,10 +574,22 @@ export class CustomHelpers {
         console.log(`${locator.toString()} has src [${String(expectedValue)}]`);
         break;
       }
+      case 'SRC_CONTAINS': {
+        await expect(locator.getAttribute("src"), `${locator.toString()} does not contain src`).toContain(String(expectedValue));
+        // eslint-disable-next-line no-console
+        console.log(`${locator.toString()} contains src [${String(expectedValue)}]`);
+        break;
+      }
       case 'TITLE': {
         await expect(locator, `${locator.toString()} does not have title`).toHaveAttribute('title', String(expectedValue));
         // eslint-disable-next-line no-console
         console.log(`${locator.toString()} has title [${String(expectedValue)}]`);
+        break;
+      }
+      case 'TITLE_CONTAINS': {
+        await expect(locator.getAttribute("title"), `${locator.toString()} does not contain title`).toContain(String(expectedValue));
+        // eslint-disable-next-line no-console
+        console.log(`${locator.toString()} contains title [${String(expectedValue)}]`);
         break;
       }
       case 'HREF': {
@@ -574,8 +598,64 @@ export class CustomHelpers {
         console.log(`${locator.toString()} has href [${String(expectedValue)}]`);
         break;
       }
+      case 'HREF_CONTAINS': {
+        await expect(locator.getAttribute("href"), `${locator.toString()} does not contain href`).toContain(String(expectedValue));
+        // eslint-disable-next-line no-console
+        console.log(`${locator.toString()} contains href [${String(expectedValue)}]`);
+        break;
+      }
       default:
         throw new Error(`Unsupported attribute type: ${String(attribute)}`);
     }
   }
+
+  /**
+   * Upload a file by intercepting the native file chooser dialog.
+   *
+   * Note: Playwright cannot click/select inside the macOS/Windows file picker UI.
+   * This method bypasses it by handling the `filechooser` event.
+   */
+  async uploadFileViaChooser(
+    trigger: Locator,
+    filePath: string | string[],
+    opts?: { timeoutMs?: number; label?: string },
+  ): Promise<void> {
+    const timeoutMs = opts?.timeoutMs ?? 30_000;
+    const label = opts?.label ?? trigger.toString();
+
+    const [fc] = await Promise.all([
+      this.page.waitForEvent('filechooser', { timeout: timeoutMs }),
+      trigger.click(),
+    ]);
+
+    await fc.setFiles(filePath);
+    this.log(`Uploaded file via chooser from [${label}]`);
+  }
+
+  async clickAndWaitForNewPage(
+    context: BrowserContext,
+    locator: Locator
+  ): Promise<Page> {
+    const [newPage] = await Promise.all([
+      context.waitForEvent('page'),
+      locator.click()
+    ]);
+  
+    await newPage.waitForLoadState('load');
+    return newPage;
+  }
+
+  //for popup windows
+  async clickAndWaitForNewPopup(
+    page: Page,
+    locator: Locator
+  ): Promise<Page> {
+    const [newPopup] = await Promise.all([
+      page.waitForEvent('popup'),
+      locator.click()
+    ]);
+    await newPopup.waitForLoadState('load');
+    return newPopup;
+  }
+
 }

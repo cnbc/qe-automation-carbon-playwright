@@ -527,7 +527,7 @@ export class SITPage {
   }
   lnkMediaLibrary(): Locator {
     return this.page.locator(
-      "//i[@class='c-nav-icon icon icon-image2 ng-star-inserted']",
+      "//a[@href='/dashboard/media']",
     );
   }
   lnkSearchMenu(): Locator {
@@ -539,7 +539,7 @@ export class SITPage {
     return this.page.locator("//a[contains(@href,'video-management')]");
   }
   btnUpload(): Locator {
-    return this.page.locator("//i[@class='c-icon icon icon-angle-down']");
+    return this.page.locator("//span[contains(text(),'Upload')]//mat-icon[text()='arrow_drop_down']");
   }
   lnkSinglePhoto(): Locator {
     return this.page.locator("//button[contains(text(),'Single Photo')]");
