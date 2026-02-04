@@ -1,3 +1,1 @@
-export {CustomHelpers} from "../reusablehelpers/customHelpers";
-
-
+export { CustomHelpers } from './customHelpers';

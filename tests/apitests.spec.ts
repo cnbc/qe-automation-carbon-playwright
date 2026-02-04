@@ -1,8 +1,8 @@
 import { test, expect, chromium, type APIRequestContext } from '@playwright/test';
-import * as apiHelpers from '../reusablehelpers/apiHelpers';  
-import * as customHelpers from '../reusablehelpers/customHelpers';
 import * as fs from 'fs/promises';
 import * as path from 'path';
+import * as customHelpers from '../reusableHelpers/customHelpers';
+import * as apiHelpers from '../reusableHelpers/apiHelpers';
 
 test.describe('Viper API Tests', () => {
   let api: APIRequestContext;

@@ -456,4 +456,126 @@ export class CustomHelpers {
       await this.page.waitForTimeout(5000);
     }
   }
+
+  async validateUIState(
+    locator: Locator,
+    expectedState: String | number | boolean | null | undefined,
+    elementName: string = 'Element'
+  ) {
+    // eslint-disable-next-line no-console
+    console.log(`Validating [${elementName}] should be [${String(expectedState)}]`);
+
+    switch (expectedState) {
+      case 'VISIBLE':
+        await expect(locator, `${elementName} is NOT visible`).toBeVisible();
+        // eslint-disable-next-line no-console
+        console.log(`${elementName} is visible`);
+        break;
+
+      case 'NOT_VISIBLE':
+        await expect(locator, `${elementName} is visible but should NOT be`).toBeHidden();
+        // eslint-disable-next-line no-console
+        console.log(`${elementName} is not visible`);
+        break;
+
+      case 'ENABLED':
+        await expect(locator, `${elementName} is NOT enabled`).toBeEnabled();
+        // eslint-disable-next-line no-console
+        console.log(`${elementName} is enabled`);
+        break;
+
+      case 'DISABLED':
+        await expect(locator, `${elementName} is enabled but should NOT be`).toBeDisabled();
+        // eslint-disable-next-line no-console
+        console.log(`${elementName} is disabled`);
+        break;
+
+      case 'CHECKED':
+        await expect(locator, `${elementName} is NOT checked`).toBeChecked();
+        // eslint-disable-next-line no-console
+        console.log(`${elementName} is checked`);
+        break;
+
+      case 'UNCHECKED':
+        await expect(locator, `${elementName} is checked but should NOT be`).not.toBeChecked();
+        // eslint-disable-next-line no-console
+        console.log(`${elementName} is unchecked`);
+        break;
+
+      case 'EDITABLE':
+        await expect(locator, `${elementName} is NOT editable`).toBeEditable();
+        // eslint-disable-next-line no-console
+        console.log(`${elementName} is editable`);
+        break;
+
+      case 'READONLY':
+        await expect(locator, `${elementName} is editable but should be readonly`).toHaveAttribute('readonly');
+        // eslint-disable-next-line no-console
+        console.log(`${elementName} is readonly`);
+        break;
+
+      case 'ATTACHED':
+        await expect(locator, `${elementName} is NOT attached to DOM`).toBeAttached();
+        // eslint-disable-next-line no-console
+        console.log(`${elementName} is attached to DOM`);
+        break;
+
+      case 'DETACHED':
+        await expect(locator, `${elementName} is attached but should NOT be`).not.toBeAttached();
+        // eslint-disable-next-line no-console
+        console.log(`${elementName} is detached from DOM`);
+        break;
+
+      default:
+        throw new Error(`Unsupported UI State: ${String(expectedState)}`);
+    }
+  }
+
+  async validateAttribute(
+    locator: Locator,
+    attribute: string | number | boolean | null | undefined,
+    expectedValue: string | number | boolean | null | undefined,
+  ): Promise<void> {
+    // eslint-disable-next-line no-console
+    console.log(
+      `Validating [${locator.toString()}] should have attribute [${String(attribute)}] with value [${String(
+        expectedValue,
+      )}]`,
+    );
+
+    switch (attribute) {
+      case 'TEXT': {
+        await expect(locator, `${locator.toString()} does not have text content`).toHaveText(String(expectedValue));
+        // eslint-disable-next-line no-console
+        console.log(`${locator.toString()} has text content [${String(expectedValue)}]`);
+        break;
+      }
+      case 'VALUE': {
+        await expect(locator, `${locator.toString()} does not have value`).toHaveValue(String(expectedValue));
+        // eslint-disable-next-line no-console
+        console.log(`${locator.toString()} has value [${String(expectedValue)}]`);
+        break;
+      }
+      case 'SRC': {
+        await expect(locator, `${locator.toString()} does not have src`).toHaveAttribute('src', String(expectedValue));
+        // eslint-disable-next-line no-console
+        console.log(`${locator.toString()} has src [${String(expectedValue)}]`);
+        break;
+      }
+      case 'TITLE': {
+        await expect(locator, `${locator.toString()} does not have title`).toHaveAttribute('title', String(expectedValue));
+        // eslint-disable-next-line no-console
+        console.log(`${locator.toString()} has title [${String(expectedValue)}]`);
+        break;
+      }
+      case 'HREF': {
+        await expect(locator, `${locator.toString()} does not have href`).toHaveAttribute('href', String(expectedValue));
+        // eslint-disable-next-line no-console
+        console.log(`${locator.toString()} has href [${String(expectedValue)}]`);
+        break;
+      }
+      default:
+        throw new Error(`Unsupported attribute type: ${String(attribute)}`);
+    }
+  }
 }

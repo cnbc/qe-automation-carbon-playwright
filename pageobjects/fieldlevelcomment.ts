@@ -52,6 +52,9 @@ export class FieldLevelCommentPage {
   commentedTextInBody(value: String): Locator {
     return this.page.locator('//mat-panel-title[contains(@class,"mat-expansion-panel-header-title")]//i[contains(text(),"' + value + '")]');
   }
+  commentedTextInBodyAll(value: number | String): Locator {
+    return this.page.locator('(//mat-panel-title[contains(@class,"mat-expansion-panel-header-title")]//i)[' + value + ']');
+  }
   commentedBy(value: String | number): Locator {
     return this.page.locator('(//div[@class="comment-header"]//b)[' + value + ']');
   }

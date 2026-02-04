@@ -48,25 +48,12 @@ test.describe('Carbon Field Level Commenting Tests', () => {
 
     //verify field in right rail comment drawer
     await fieldLevelCommentPage.btnAddComment(1).click();
-    await fieldLevelCommentPage.commentedFieldName("Headline").first().textContent().then((text: string | null) => {
-      console.log("Commented text: " + text);
-      expect(text?.toString().trim()).toBe("Headline");
-    });
-    await fieldLevelCommentPage.noOfComments().first().textContent().then((text: string | null) => {
-      console.log("No of comments: " + text);
-      expect(text?.toString().trim()).toBe(beforeCount.toString() + " comments");
-    });
+    await cm.validateAttribute(fieldLevelCommentPage.noOfComments().first(), 'TEXT', beforeCount.toString() + " comments");
     if(beforeCount > 0) {
-      await fieldLevelCommentPage.commentsPurpleDot().first().isVisible().then((isVisible: boolean) => {
-        console.log("Purple dot is visible: " + isVisible);
-        expect(isVisible).toBe(true);
-      });
+      await cm.validateUIState(fieldLevelCommentPage.commentsPurpleDot().first(), 'VISIBLE', 'Purple dot');
 
     }else{
-      await fieldLevelCommentPage.commentsPurpleDot().first().isVisible().then((isVisible: boolean) => {
-        console.log("Purple dot is not visible: " + isVisible);
-        expect(isVisible).toBe(false);
-      });
+      await cm.validateUIState(fieldLevelCommentPage.commentsPurpleDot().first(), 'NOT_VISIBLE', 'Purple dot');
     }
 
     // Add comment
@@ -78,15 +65,9 @@ test.describe('Carbon Field Level Commenting Tests', () => {
       .toBe(expected);
     console.log("Comment badge count after adding comment: " + expected);
 
-
-    await fieldLevelCommentPage.noOfComments().first().textContent().then((text: string | null) => {
-      console.log("No of comments: " + text);
-      expect(text?.toString().trim()).toBe(expected.toString() + " comments");
-    });
-    await fieldLevelCommentPage.commentsPurpleDot().first().isVisible().then((isVisible: boolean) => {
-      console.log("Purple dot is visible: " + isVisible);
-      expect(isVisible).toBe(true);
-    });
+    await cm.validateAttribute(fieldLevelCommentPage.commentedFieldName("Headline").first(), 'TEXT', "Headline");
+    await cm.validateAttribute(fieldLevelCommentPage.noOfComments().first(), 'TEXT', expected.toString() + " comments");
+    await cm.validateUIState(fieldLevelCommentPage.commentsPurpleDot().first(), 'VISIBLE', 'Purple dot');
 
   });
 
@@ -105,23 +86,14 @@ test.describe('Carbon Field Level Commenting Tests', () => {
     //await fieldLevelCommentPage.btnAddComment(1).click();
     const commentText1 = await addCommentOnFieldLevel(1);
     if(beforeCount > 0) {
-      await fieldLevelCommentPage.commentResolveThisThread().first().isVisible().then((isVisible: boolean) => {
-        console.log("Resolve all comment button is visible: " + isVisible);
-        expect(isVisible).toBe(true);
-      });
+      await cm.validateUIState(fieldLevelCommentPage.commentResolveThisThread().first(), 'VISIBLE', 'Resolve all comment button');
     }else{
-      await fieldLevelCommentPage.commentResolveThisThread().first().isVisible().then((isVisible: boolean) => {
-        console.log("Resolve all comment button is not visible: " + isVisible);
-        expect(isVisible).toBe(false);
-      });
+      await cm.validateUIState(fieldLevelCommentPage.commentResolveThisThread().first(), 'NOT_VISIBLE', 'Resolve all comment button');
     }
     await fieldLevelCommentPage.btnAddComment(1).click();
     const commentText2 = await addCommentOnFieldLevel(1);
     await cm.waitForSeconds(5);
-    await fieldLevelCommentPage.commentResolveThisThread().first().isVisible().then((isVisible: boolean) => {
-      console.log("Resolve all comment button is visible: " + isVisible);
-      expect(isVisible).toBe(true);
-    });
+    await cm.validateUIState(fieldLevelCommentPage.commentResolveThisThread().first(), 'VISIBLE', 'Resolve all comment button');
     let expected = beforeCount + 2;
     await expect
       .poll(async () => fieldLevelCommentPage.commentBadgeCount(1), { timeout: 30_000 })
@@ -131,19 +103,9 @@ test.describe('Carbon Field Level Commenting Tests', () => {
     await fieldLevelCommentPage.commentMoreOptions(1).click();
     await fieldLevelCommentPage.commentEditActionsMarkAsResolved().click();
     await cm.waitForSeconds(2);
-    await fieldLevelCommentPage.noOfComments().first().textContent().then((text: string | null) => {
-      console.log("No of comments: " + text);
-      expect(text?.toString().trim()).toBe(expected.toString() + " comments");
-    });
+    await cm.validateAttribute(fieldLevelCommentPage.noOfComments().first(), 'TEXT', expected.toString() + " comments");
     await cm.waitForSeconds(2);
-    await fieldLevelCommentPage.commentResolvedGreenCircleIndividual(commentText1).isVisible().then((isVisible: boolean) => {
-      console.log("Resolved green circle is visible: " + isVisible);
-      expect(isVisible).toBe(true);
-    });
-    /*await fieldLevelCommentPage.commentResolveThisThread().first().isVisible().then((isVisible: boolean) => {
-      console.log("Resolve all comment button is NOT visible: " + isVisible);
-      expect(isVisible).toBe(false);
-    });*/
+    await cm.validateUIState(fieldLevelCommentPage.commentResolvedGreenCircleIndividual(commentText1), 'VISIBLE', 'Resolved green circle');
     expected = beforeCount + 1;
     await expect
       .poll(async () => fieldLevelCommentPage.commentBadgeCount(1), { timeout: 30_000 })
@@ -154,25 +116,15 @@ test.describe('Carbon Field Level Commenting Tests', () => {
     await fieldLevelCommentPage.commentResolveThisThread().first().click();
     await cm.waitForSeconds(2);
     expected = beforeCount + 2;
-    await fieldLevelCommentPage.noOfComments().first().textContent().then((text: string | null) => {
-      console.log("No of comments: " + text);
-      expect(text?.toString().trim()).toBe("check_circle_outline  " + expected.toString() + " comments");
-    });
+    await cm.validateAttribute(fieldLevelCommentPage.noOfComments().first(), 'TEXT', "check_circle_outline  " + expected.toString() + " comments");
     await cm.waitForSeconds(2);
-    await fieldLevelCommentPage.commentAllResolvedGreenCircle().first().isVisible().then((isVisible: boolean) => {
-      console.log("Resolve all comment button is visible: " + isVisible);
-      expect(isVisible).toBe(true);
-    });
+    await cm.validateUIState(fieldLevelCommentPage.commentAllResolvedGreenCircle().first(), 'VISIBLE', 'Resolve all comment button');
     expected = beforeCount;
     await expect
       .poll(async () => fieldLevelCommentPage.commentBadgeCount(1), { timeout: 30_000 })
       .toBe(expected);
-
   
-    await fieldLevelCommentPage.commentsPurpleDot().first().isVisible().then((isVisible: boolean) => {
-      console.log("Purple dot is visible: " + isVisible);
-      expect(isVisible).toBe(false);
-    });
+    cm.validateUIState(fieldLevelCommentPage.commentsPurpleDot().first(), 'NOT_VISIBLE', 'Purple dot');
 
   });
 
@@ -211,19 +163,13 @@ test.describe('Carbon Field Level Commenting Tests', () => {
     );
     await fieldLevelCommentPage.commentSaveButton().click();
     await cm.waitForSeconds(2);
-    await fieldLevelCommentPage.commentContent(2).textContent().then((text: string | null) => {
-      console.log("Comment text: " + text);
-      expect(text?.toString().trim()).toBe(newCommentText);
-    });
+    await cm.validateAttribute(fieldLevelCommentPage.commentContent(2), 'TEXT', newCommentText);
 
     //Delete a comment
     await fieldLevelCommentPage.commentMoreOptions(1).click();
     await fieldLevelCommentPage.commentEditActionsDelete().click();
     await cm.waitForSeconds(2);
-    await fieldLevelCommentPage.commentContent(1).textContent().then((text: string | null) => {
-      console.log("Comment text: " + text);
-      expect(text?.toString().trim()).not.toBe(commentText1);
-    });
+    await cm.validateAttribute(fieldLevelCommentPage.commentContent(1), 'TEXT', newCommentText);
     let expected = beforeCount + 2;
     await expect
       .poll(async () => fieldLevelCommentPage.commentBadgeCount(1), { timeout: 30_000 })
@@ -251,10 +197,7 @@ test.describe('Carbon Field Level Commenting Tests', () => {
 
     await fieldLevelCommentPage.commentSaveButton().click();
     await cm.waitForSeconds(2);
-    await fieldLevelCommentPage.commentContent(2).textContent().then((text: string | null) => {
-      console.log("Comment text: " + text);
-      expect(text?.toString().trim()).toBe(newCommentText);
-    });
+    await cm.validateAttribute(fieldLevelCommentPage.commentContent(2), 'TEXT', newCommentText);
 
     expected = beforeCount + 2;
     await expect
@@ -285,10 +228,7 @@ test.describe('Carbon Field Level Commenting Tests', () => {
     });
 
     //check commented date
-    await fieldLevelCommentPage.commentedDate(1).textContent().then((text: string | null) => {
-      console.log("Commented date: " + text);
-      expect(text?.toString().trim()).toBe(cm.getCurrentTimestampDisplay());
-    });
+    await cm.validateAttribute(fieldLevelCommentPage.commentedDate(1), 'TEXT', cm.getCurrentTimestampDisplay());
 
     //edit a comment
     await fieldLevelCommentPage.commentMoreOptions(1).click();
@@ -303,10 +243,7 @@ test.describe('Carbon Field Level Commenting Tests', () => {
     await cm.waitForSeconds(2);
 
     //check edited timestamp
-    await fieldLevelCommentPage.editedCommentTimestamp().textContent().then((text: string | null) => {
-      console.log("Edited timestamp: " + text);
-      expect(text?.toString().trim()).toBe("Edited:  a few seconds ago");
-    });
+    await cm.validateAttribute(fieldLevelCommentPage.editedCommentTimestamp(), 'TEXT', "Edited:  a few seconds ago");
 
     //mark as resolved a comment
     await fieldLevelCommentPage.commentMoreOptions(1).click();
@@ -314,10 +251,7 @@ test.describe('Carbon Field Level Commenting Tests', () => {
     await cm.waitForSeconds(2);
 
     //check resolved timestamp
-    await fieldLevelCommentPage.resolvedCommentTimestamp().textContent().then((text: string | null) => {
-      console.log("Resolved timestamp: " + text);
-      expect(text?.toString().trim()).toBe("Resolved:  a few seconds ago");
-    });
+    await cm.validateAttribute(fieldLevelCommentPage.resolvedCommentTimestamp(), 'TEXT', "Resolved:  a few seconds ago");
 
   });
 
@@ -343,29 +277,91 @@ test.describe('Carbon Field Level Commenting Tests', () => {
     );
     await fieldLevelCommentPage.commentPostButton().click();
     await cm.waitForSeconds(4);
-    await fieldLevelCommentPage.commentedFieldName("Body").isVisible().then((isVisible: boolean) => {
-      console.log("Body RTE comment is visible: " + isVisible);
-      expect(isVisible).toBe(true);
-    });
-    await fieldLevelCommentPage.commentedTextInBody("close to 2% on Friday following").isVisible().then((isVisible: boolean) => {
-      console.log("Body RTE comment text is visible: " + isVisible);
-      expect(isVisible).toBe(true);
-    });
-    await fieldLevelCommentPage.commentedBy(1).textContent().then((text: string | null) => {
-      console.log("Commented by: " + text);
-      expect(text?.toString().trim()).toBe("C");
-    });
-    await fieldLevelCommentPage.commentedDate(1).textContent().then((text: string | null) => {
-      console.log("Commented date: " + text);
-      expect(text?.toString().trim()).toBe(cm.getCurrentTimestampDisplay());
-    });
+    await cm.validateUIState(fieldLevelCommentPage.commentedFieldName("Body"), 'VISIBLE', 'Body RTE comment');
+    await cm.validateUIState(fieldLevelCommentPage.commentedTextInBody("close to 2% on Friday following"), 'VISIBLE', 'Body RTE comment text');
+    await cm.validateAttribute(fieldLevelCommentPage.commentedBy(1), 'TEXT', "C");
+    await cm.validateAttribute(fieldLevelCommentPage.commentedDate(1), 'TEXT', cm.getCurrentTimestampDisplay());
 
     await sitPage.edtBody().click();
-    cm.waitForSeconds(3);
-    await fieldLevelCommentPage.commentHighlightedTextPrimary("close to 2% on Friday following").isVisible().then((isVisible: boolean) => { 
-      console.log("Body RTE comment highlighted text is visible: " + isVisible);
-      expect(isVisible).toBe(true);
-    });
+    await cm.waitForSeconds(3);
+    await cm.validateUIState(fieldLevelCommentPage.commentHighlightedTextPrimary("close to 2% on Friday following"), 'VISIBLE', 'Body RTE comment highlighted text');
+  });
+
+  test('Verify user is able to Insert comment using floating menu for a multiple texts and comments for each texts appears on the comment drawer with text as title and highligts',{ tag: ['@Bala123', ...TAGS] }, async () => {
+    await cm.login(ENV);
+    await cm.selectAsset(assetType);
+    await sitPage.edtTitleNewConfig().fill("AutoTest"+ cm.getTimeStamp());
+    await cm.typeInContentEditable(sitPage.edtBody(), bodyText, { label: 'Body editor' });
+    await sitPage.btnSaveNewConfig().click();
+    await cm.waitForPageToLoadCMS();
+    await cm.waitForTime(5000);
+    await cm.selectTextInProseMirror(sitPage.edtBody(), "Shipping costs accelerated 36%, the highest", { label: 'Body editor' });
+    await cm.waitForTime(2000);
+    await fieldLevelCommentPage.btnComment_RTESelectionMenu().click();
+    await cm.waitForSeconds(2);
+    await cm.typeInContentEditable(
+      fieldLevelCommentPage.commentProseMirror(),
+      "AutoTest"+ cm.getTimeStamp(),
+      { label: 'Field level comment editor' },
+    );
+    await fieldLevelCommentPage.commentPostButton().click();
+    await cm.waitForSeconds(4);
+    await cm.validateUIState(fieldLevelCommentPage.commentedFieldName("Body"), 'VISIBLE', 'Body RTE comment');
+    await cm.validateUIState(fieldLevelCommentPage.commentedTextInBody("Shipping costs accelerated 36%, the highest"), 'VISIBLE', 'Body RTE comment text');
+    await sitPage.edtBody().click();
+    await cm.waitForTime(2000);
+    await cm.validateUIState(fieldLevelCommentPage.commentHighlightedTextPrimary("Shipping costs accelerated 36%, the highest"), 'VISIBLE', 'Body RTE comment highlighted text');
+
+
+    //2nd comment
+  
+    await cm.selectTextInProseMirror(sitPage.edtBody(), "projected $800 million to make one-day", { label: 'Body editor' });
+    await cm.waitForTime(2000);
+    await fieldLevelCommentPage.btnComment_RTESelectionMenu().click();
+    await cm.waitForSeconds(2);
+    await cm.typeInContentEditable(
+      fieldLevelCommentPage.commentProseMirror(),
+      "AutoTest"+ cm.getTimeStamp(),
+      { label: 'Field level comment editor' },
+    );
+    await fieldLevelCommentPage.commentPostButton().click();
+    await cm.waitForSeconds(4);
+    await cm.validateUIState(fieldLevelCommentPage.commentResolveThisThread(), 'NOT_VISIBLE', 'Resolve all comment button');
+    await cm.typeInContentEditable(
+      fieldLevelCommentPage.commentProseMirror(),
+      "AutoTest"+ cm.getTimeStamp(),
+      { label: 'Field level comment editor' },
+    );
+    await fieldLevelCommentPage.commentPostButton().click();
+    await cm.waitForSeconds(4);
+    await cm.validateUIState(fieldLevelCommentPage.commentedTextInBody("projected $800 million to make one-day"), 'VISIBLE', 'Body RTE comment text');
+    await cm.validateUIState(fieldLevelCommentPage.commentResolveThisThread(), 'VISIBLE', 'Resolve all comment button');
+    await sitPage.edtBody().click();
+    await cm.waitForTime(2000);
+    await cm.validateUIState(fieldLevelCommentPage.commentHighlightedTextPrimary("projected $800 million to make one-day"), 'VISIBLE', 'Body RTE comment highlighted text');
+    await cm.validateUIState(fieldLevelCommentPage.commentHighlightedTextSecondary("Shipping costs accelerated 36%, the highest"), 'VISIBLE', 'Body RTE comment highlighted text');
+    //3rd comment
+    await cm.selectTextInProseMirror(sitPage.edtBody(), "relentless", { label: 'Body editor' });
+    await cm.waitForTime(2000);
+    await fieldLevelCommentPage.btnComment_RTESelectionMenu().click();
+    await cm.waitForSeconds(2);
+    await cm.typeInContentEditable(
+      fieldLevelCommentPage.commentProseMirror(),
+      "AutoTest"+ cm.getTimeStamp(),
+      { label: 'Field level comment editor' },
+    );
+    await fieldLevelCommentPage.commentPostButton().click();
+    await cm.waitForSeconds(4);
+    await cm.validateUIState(fieldLevelCommentPage.commentedTextInBody("relentless"), 'VISIBLE', 'Body RTE comment text');
+    await sitPage.edtBody().click();
+    await cm.waitForTime(2000);
+    await cm.validateUIState(fieldLevelCommentPage.commentHighlightedTextPrimary("relentless"), 'VISIBLE', 'Body RTE comment highlighted text');
+    await cm.validateUIState(fieldLevelCommentPage.commentHighlightedTextSecondary("projected $800 million to make one-day"), 'VISIBLE', 'Body RTE comment highlighted text');
+    await cm.validateUIState(fieldLevelCommentPage.commentHighlightedTextSecondary("Shipping costs accelerated 36%, the highest"), 'VISIBLE', 'Body RTE comment highlighted text');
+
+    //check relentless goes to top of the comment drawer
+    await cm.validateAttribute(fieldLevelCommentPage.commentedTextInBodyAll(1), 'TEXT', "relentless");
+
   });
 
 
