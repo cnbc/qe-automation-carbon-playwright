@@ -212,6 +212,63 @@ export class CustomHelpers {
   }
 
   /**
+   * Read tooltip text for a target element.
+   *
+   * Supports:
+   * - Angular Material tooltips rendered in an overlay (`[role="tooltip"]`, `.mat-tooltip`, `.mdc-tooltip__surface`)
+   * - Native/simple tooltips via attributes (`title`, `aria-label`, `aria-describedby`)
+   *
+   * Tip: Most Angular Material tooltips appear on hover; set trigger='hover' (default).
+   */
+  async readTooltipMessage(
+    target: Locator,
+    opts?: { trigger?: 'hover' | 'focus' | 'none'; timeoutMs?: number; label?: string },
+  ): Promise<string> {
+    const trigger = opts?.trigger ?? 'hover';
+    const timeoutMs = opts?.timeoutMs ?? 10_000;
+    const label = opts?.label ?? target.toString();
+
+    // First, try attribute-based tooltips (fast, no UI events required).
+    const attrTitle = (await target.getAttribute('title'))?.trim();
+    if (attrTitle) return attrTitle;
+
+    const attrAriaLabel = (await target.getAttribute('aria-label'))?.trim();
+    if (attrAriaLabel) return attrAriaLabel;
+
+    // Trigger tooltip UI if needed.
+    if (trigger === 'hover') await target.hover();
+    else if (trigger === 'focus') await target.focus();
+
+    // Angular Material tooltips are rendered under the global overlay container.
+    // Prefer scoping there to avoid accidentally picking up other tooltips in DOM.
+    const overlay = this.page.locator('.cdk-overlay-container');
+    const tooltip = overlay
+      .locator('[role="tooltip"], .mat-tooltip, .mdc-tooltip__surface')
+      .filter({ hasText: /.+/ })
+      .last();
+
+    try {
+      await tooltip.waitFor({ state: 'visible', timeout: timeoutMs });
+      const txt = (await tooltip.innerText()).trim();
+      if (txt) return txt;
+    } catch {
+      // ignore and try fallbacks below
+    }
+
+    // Fallback: aria-describedby points to an element containing tooltip text.
+    const describedBy = (await target.getAttribute('aria-describedby'))?.trim();
+    if (describedBy) {
+      const byId = this.page.locator(`#${CSS.escape(describedBy)}`);
+      if (await byId.count()) {
+        const txt = ((await byId.textContent()) ?? '').trim();
+        if (txt) return txt;
+      }
+    }
+
+    throw new Error(`Tooltip text not found for ${label}`);
+  }
+
+  /**
    * Select (highlight) the first (or Nth) occurrence of a substring inside a ProseMirror/contenteditable editor.
    *
    * Example:

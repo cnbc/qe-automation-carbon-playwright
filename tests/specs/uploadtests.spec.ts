@@ -1,6 +1,6 @@
 import { test, expect } from '@playwright/test';
-import * as RM from '../reusableHelpers/reusablehelpersindex';
-import * as PO from '../pageobjects/pageobjectsindex';
+import * as RM from '../helpers/reusablehelpersindex.ts';
+import * as PO from '../pageobjects/pageobjectsindex.ts';
 
 const ENV = process.env.ENV || 'stg02';
 const TAGS: string[] = ['@Story', '@Regression', '@High', '@Upload'];

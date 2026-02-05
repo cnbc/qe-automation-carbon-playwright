@@ -46,6 +46,9 @@ export class FieldLevelCommentPage {
   btnCommentContainer(): Locator {
     return this.page.locator('//button[@mattooltip="Comments"]//mat-icon[@matbadgesize="small"]');
   }
+  btnCommentContainerCount(): Locator {
+    return this.page.locator('//button[@mattooltip="Comments"]//mat-icon[@matbadgesize="small"]');
+  }
   commentedFieldName(value: String): Locator {
     return this.page.locator('//mat-panel-title[contains(@class,"mat-expansion-panel-header-title")]//b[text()="' + value + '"]');
   }
@@ -172,6 +175,21 @@ export class FieldLevelCommentPage {
    */
   async commentBadgeCount(value: number): Promise<number> {
     const icon = this.btnAddComment(value);
+    await icon.waitFor({ state: 'attached', timeout: 30_000 });
+
+    const raw = await icon.evaluate((el) => {
+      const span =
+        (el as HTMLElement).querySelector('span[id*="mat-badge-content"]') ??
+        (el as HTMLElement).querySelector('span.mat-badge-content');
+      return (span?.textContent ?? '').trim();
+    });
+
+    const n = Number.parseInt(raw || '0', 10);
+    return Number.isFinite(n) ? n : 0;
+  }
+
+  async commentContainerCount(): Promise<number> {
+    const icon = this.btnCommentContainerCount();
     await icon.waitFor({ state: 'attached', timeout: 30_000 });
 
     const raw = await icon.evaluate((el) => {

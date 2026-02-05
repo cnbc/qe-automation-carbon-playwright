@@ -1,6 +1,6 @@
 //import { test, expect } from '../fixtures/lambdatest';
 import { test, expect } from '@playwright/test';
-import * as RM from '../reusableHelpers/reusablehelpersindex';
+import * as RM from '../helpers/reusablehelpersindex';
 import * as PO from '../pageobjects/pageobjectsindex';
 
 const ENV = process.env.ENV || 'stg02';
@@ -33,6 +33,16 @@ test.describe('Carbon Field Level Commenting Tests', () => {
     await fieldLevelCommentPage.commentPostButton().click();
     console.log("Comment added successfully");
     return commentText;
+  }
+
+  async function enterCommentInProseMirror(): Promise<void> {
+    await cm.typeInContentEditable(
+      fieldLevelCommentPage.commentProseMirror(),
+      "AutoTest"+ cm.getTimeStamp(),
+      { label: 'Field level comment editor' },
+    );
+    await fieldLevelCommentPage.commentPostButton().click();
+    await cm.waitForSeconds(4);
   }
 
 
@@ -271,13 +281,7 @@ test.describe('Carbon Field Level Commenting Tests', () => {
     await cm.waitForTime(2000);
     await fieldLevelCommentPage.btnComment_RTESelectionMenu().click();
     await cm.waitForSeconds(2);
-    await cm.typeInContentEditable(
-      fieldLevelCommentPage.commentProseMirror(),
-      "AutoTest"+ cm.getTimeStamp(),
-      { label: 'Field level comment editor' },
-    );
-    await fieldLevelCommentPage.commentPostButton().click();
-    await cm.waitForSeconds(4);
+    await enterCommentInProseMirror();
     await cm.validateUIState(fieldLevelCommentPage.commentedFieldName("Body"), 'VISIBLE', 'Body RTE comment');
     await cm.validateUIState(fieldLevelCommentPage.commentedTextInBody("close to 2% on Friday following"), 'VISIBLE', 'Body RTE comment text');
     await cm.validateAttribute(fieldLevelCommentPage.commentedBy(1), 'TEXT', "C");
@@ -288,7 +292,7 @@ test.describe('Carbon Field Level Commenting Tests', () => {
     await cm.validateUIState(fieldLevelCommentPage.commentHighlightedTextPrimary("close to 2% on Friday following"), 'VISIBLE', 'Body RTE comment highlighted text');
   });
 
-  test('Verify user is able to Insert comment using floating menu for a multiple texts and comments for each texts appears on the comment drawer with text as title and highligts',{ tag: ['@Bala123', ...TAGS] }, async () => {
+  test('Verify user is able to Insert comment using floating menu for a multiple texts and comments for each texts appears on the comment drawer with text as title and highligts',{ tag: ['@C228076592', ...TAGS] }, async () => {
     await cm.login(ENV);
     await cm.selectAsset(assetType);
     await sitPage.edtTitleNewConfig().fill("AutoTest"+ cm.getTimeStamp());
@@ -300,13 +304,7 @@ test.describe('Carbon Field Level Commenting Tests', () => {
     await cm.waitForTime(2000);
     await fieldLevelCommentPage.btnComment_RTESelectionMenu().click();
     await cm.waitForSeconds(2);
-    await cm.typeInContentEditable(
-      fieldLevelCommentPage.commentProseMirror(),
-      "AutoTest"+ cm.getTimeStamp(),
-      { label: 'Field level comment editor' },
-    );
-    await fieldLevelCommentPage.commentPostButton().click();
-    await cm.waitForSeconds(4);
+    await enterCommentInProseMirror();
     await cm.validateUIState(fieldLevelCommentPage.commentedFieldName("Body"), 'VISIBLE', 'Body RTE comment');
     await cm.validateUIState(fieldLevelCommentPage.commentedTextInBody("Shipping costs accelerated 36%, the highest"), 'VISIBLE', 'Body RTE comment text');
     await sitPage.edtBody().click();
@@ -320,21 +318,9 @@ test.describe('Carbon Field Level Commenting Tests', () => {
     await cm.waitForTime(2000);
     await fieldLevelCommentPage.btnComment_RTESelectionMenu().click();
     await cm.waitForSeconds(2);
-    await cm.typeInContentEditable(
-      fieldLevelCommentPage.commentProseMirror(),
-      "AutoTest"+ cm.getTimeStamp(),
-      { label: 'Field level comment editor' },
-    );
-    await fieldLevelCommentPage.commentPostButton().click();
-    await cm.waitForSeconds(4);
+    await enterCommentInProseMirror();
     await cm.validateUIState(fieldLevelCommentPage.commentResolveThisThread(), 'NOT_VISIBLE', 'Resolve all comment button');
-    await cm.typeInContentEditable(
-      fieldLevelCommentPage.commentProseMirror(),
-      "AutoTest"+ cm.getTimeStamp(),
-      { label: 'Field level comment editor' },
-    );
-    await fieldLevelCommentPage.commentPostButton().click();
-    await cm.waitForSeconds(4);
+    await enterCommentInProseMirror();
     await cm.validateUIState(fieldLevelCommentPage.commentedTextInBody("projected $800 million to make one-day"), 'VISIBLE', 'Body RTE comment text');
     await cm.validateUIState(fieldLevelCommentPage.commentResolveThisThread(), 'VISIBLE', 'Resolve all comment button');
     await sitPage.edtBody().click();
@@ -346,13 +332,7 @@ test.describe('Carbon Field Level Commenting Tests', () => {
     await cm.waitForTime(2000);
     await fieldLevelCommentPage.btnComment_RTESelectionMenu().click();
     await cm.waitForSeconds(2);
-    await cm.typeInContentEditable(
-      fieldLevelCommentPage.commentProseMirror(),
-      "AutoTest"+ cm.getTimeStamp(),
-      { label: 'Field level comment editor' },
-    );
-    await fieldLevelCommentPage.commentPostButton().click();
-    await cm.waitForSeconds(4);
+    await enterCommentInProseMirror();
     await cm.validateUIState(fieldLevelCommentPage.commentedTextInBody("relentless"), 'VISIBLE', 'Body RTE comment text');
     await sitPage.edtBody().click();
     await cm.waitForTime(2000);
@@ -362,6 +342,88 @@ test.describe('Carbon Field Level Commenting Tests', () => {
 
     //check relentless goes to top of the comment drawer
     await cm.validateAttribute(fieldLevelCommentPage.commentedTextInBodyAll(1), 'TEXT', "relentless");
+
+  });
+
+  test('Verify user is able to resolve the comment and resolved tooltip shows the text for which that commented is resolved',{ tag: ['@C228076623', ...TAGS] }, async () => {
+    await cm.login(ENV);
+    await cm.selectAsset(assetType);
+    await sitPage.edtTitleNewConfig().fill("AutoTest"+ cm.getTimeStamp());
+    await cm.typeInContentEditable(sitPage.edtBody(), bodyText, { label: 'Body editor' });
+    await sitPage.btnSaveNewConfig().click();
+    await cm.waitForPageToLoadCMS();
+    await cm.waitForTime(5000);
+    await sitPage.edtBody().click();
+    await cm.waitForTime(2000);
+    let beforeCount = await fieldLevelCommentPage.commentBadgeCount(10);
+    console.log("Comment badge count before adding comment: " + beforeCount);
+    let beforeCountCommentContainer = await fieldLevelCommentPage.commentContainerCount();
+    console.log("Comment container count before adding comment: " + beforeCountCommentContainer);
+    await cm.selectTextInProseMirror(sitPage.edtBody(), "Shipping costs accelerated 36%, the highest", { label: 'Body editor' });
+    await cm.waitForTime(2000);
+    await fieldLevelCommentPage.btnComment_RTESelectionMenu().click();
+    await cm.waitForSeconds(2);
+    await enterCommentInProseMirror();
+    await enterCommentInProseMirror();
+    await enterCommentInProseMirror();
+    await sitPage.edtBody().click();
+    await cm.waitForTime(2000);
+    await cm.validateUIState(fieldLevelCommentPage.commentHighlightedTextPrimary("Shipping costs accelerated 36%, the highest"), 'VISIBLE', 'Body RTE comment highlighted text');
+    await expect(fieldLevelCommentPage.btnCommentContainerCount()).toHaveText("forum " + (beforeCountCommentContainer + 3).toString());
+    await expect
+      .poll(async () => fieldLevelCommentPage.commentBadgeCount(10), { timeout: 30_000 })
+      .toBe(beforeCount + 3);
+    //2nd comment
+  
+    await cm.selectTextInProseMirror(sitPage.edtBody(), "projected $800 million to make one-day", { label: 'Body editor' });
+    await cm.waitForTime(2000);
+    await fieldLevelCommentPage.btnComment_RTESelectionMenu().click();
+    await cm.waitForSeconds(2);
+    await enterCommentInProseMirror();
+    await enterCommentInProseMirror();
+    await expect(fieldLevelCommentPage.btnCommentContainerCount()).toHaveText("forum " + (beforeCountCommentContainer + 5).toString());
+    await expect
+      .poll(async () => fieldLevelCommentPage.commentBadgeCount(10), { timeout: 30_000 })
+      .toBe(beforeCount + 5);
+
+
+    //Resolve all the comments for the second thread
+    await fieldLevelCommentPage.commentResolveThisThread().click();
+    await cm.waitForSeconds(2);
+    await cm.validateAttribute(fieldLevelCommentPage.noOfComments().first(), 'TEXT', " "+(beforeCount+5).toString() + " comments ");
+    await cm.validateUIState(fieldLevelCommentPage.commentedTextInBody("Past resolved comments"), 'VISIBLE', 'past resolved comments');
+    await cm.validateAttribute(fieldLevelCommentPage.noOfComments().nth(1), 'TEXT', "check_circle_outline  " + 2 + " comments ");
+    await cm.validateUIState(fieldLevelCommentPage.commentedTextInBody("projected $800 million to make one-day"), 'NOT_VISIBLE', 'projected $800 million to make one-day');
+    await cm.validateUIState(fieldLevelCommentPage.commentHighlightedTextSecondary("projected $800 million to make one-day"), 'NOT_VISIBLE', 'Body RTE comment highlighted text');
+    await cm.validateUIState(fieldLevelCommentPage.commentHighlightedTextPrimary("projected $800 million to make one-day"), 'NOT_VISIBLE', 'Body RTE comment highlighted text');
+    await cm.validateUIState(fieldLevelCommentPage.commentHighlightedTextSecondary("Shipping costs accelerated 36%, the highest"), 'VISIBLE', 'Body RTE comment highlighted text');
+
+
+    //3rd comment
+    await cm.selectTextInProseMirror(sitPage.edtBody(), "reminder of what's important:", { label: 'Body editor' });
+    await cm.waitForTime(2000);
+    await fieldLevelCommentPage.btnComment_RTESelectionMenu().click();
+    await cm.waitForSeconds(2);
+    await enterCommentInProseMirror();
+    await enterCommentInProseMirror();
+    //Resolve all the comments for the Third thread
+    await fieldLevelCommentPage.commentResolveThisThread().click();
+    await cm.waitForSeconds(2);
+
+
+    //Check the resolved comments are shown in the comment drawer
+    await fieldLevelCommentPage.commentedTextInBody("Past resolved comments").click();
+    await cm.waitForTime(2000);
+    const msg = await cm.readTooltipMessage(fieldLevelCommentPage.resolvedCommentTimestamp().first(), { trigger: 'hover' });
+    console.log("Resolved comment tooltip text: " + msg);
+    expect(msg).toContain('projected $800 million to make one-day');
+    const msg1 = await cm.readTooltipMessage(fieldLevelCommentPage.resolvedCommentTimestamp().nth(1), { trigger: 'hover' });
+    console.log("Resolved comment tooltip text: " + msg1);
+    expect(msg1).toContain('projected $800 million to make one-day');
+    const msg2 = await cm.readTooltipMessage(fieldLevelCommentPage.resolvedCommentTimestamp().nth(2), { trigger: 'hover' });
+    console.log("Resolved comment tooltip text: " + msg2);
+    expect(msg2).toContain("reminder of what's important:");
+
 
   });
 

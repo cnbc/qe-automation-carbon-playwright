@@ -1,8 +1,8 @@
 import { test, expect, chromium, type APIRequestContext } from '@playwright/test';
 import * as fs from 'fs/promises';
 import * as path from 'path';
-import * as customHelpers from '../reusableHelpers/customHelpers';
-import * as apiHelpers from '../reusableHelpers/apiHelpers';
+import * as customHelpers from '../helpers/customHelpers.ts';
+import * as apiHelpers from '../helpers/apiHelpers.ts';
 
 test.describe('Viper API Tests', () => {
   let api: APIRequestContext;
@@ -125,7 +125,7 @@ test.describe('Viper API Tests', () => {
     const baseUrl = customHelpers.viperAppUrl(env);
     const url = new URL('/api/v1/s3/asset/presigned', baseUrl).toString();
 
-    const payloadPath = path.join(__dirname, 'testdata', 'presigned-asset.request.json');
+    const payloadPath = path.join(__dirname, '../testdata', 'presigned-asset.request.json');
     const payloadRaw = await fs.readFile(payloadPath, 'utf8');
     const payload = JSON.parse(payloadRaw);
 
@@ -160,7 +160,7 @@ test.describe('Viper API Tests', () => {
     const baseUrl = customHelpers.viperAppUrl(env);
     const url = new URL('/api/v1/log', baseUrl).toString();
 
-    const payloadPath = path.join(__dirname, 'testdata', 'log-message.json');
+    const payloadPath = path.join(__dirname, '../testdata', 'log-message.json');
     const payloadRaw = await fs.readFile(payloadPath, 'utf8');
     const payload = JSON.parse(payloadRaw) as { log_type?: string; log_detail?: string };
 
