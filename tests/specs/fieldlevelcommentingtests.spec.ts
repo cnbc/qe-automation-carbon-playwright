@@ -1,5 +1,5 @@
 //import { test, expect } from '../fixtures/lambdatest';
-import { test, expect } from '@playwright/test';
+import { test, expect } from '../fixtures/auth';
 import * as RM from '../helpers/reusablehelpersindex';
 import * as PO from '../pageobjects/pageobjectsindex';
 
@@ -47,7 +47,6 @@ test.describe('Carbon Field Level Commenting Tests', () => {
 
 
   test('Verify user is able to add comment on field level',{ tag: ['@C227036241', ...TAGS] }, async () => {
-    await cm.login(ENV);
     await cm.selectAsset(assetType);
     await sitPage.edtTitleNewConfig().fill("AutoTest"+ cm.getTimeStamp());
     await sitPage.btnSaveNewConfig().click();
@@ -83,7 +82,6 @@ test.describe('Carbon Field Level Commenting Tests', () => {
   });
 
   test('Verify user is able to Resolve a comment or all comments on a field',{ tag: ['@C227036257', ...TAGS] }, async () => {
-    await cm.login(ENV);
     await cm.selectAsset(assetType);
     await sitPage.edtTitleNewConfig().fill("AutoTest"+ cm.getTimeStamp());
     await sitPage.btnSaveNewConfig().click();
@@ -140,7 +138,6 @@ test.describe('Carbon Field Level Commenting Tests', () => {
   });
 
   test('Verify user is able to Edit and Delete their own comments on a field',{ tag: ['@C227036244', ...TAGS] }, async () => {
-    await cm.login(ENV);
     await cm.selectAsset(assetType);
     await sitPage.edtTitleNewConfig().fill("AutoTest"+ cm.getTimeStamp());
     await sitPage.btnSaveNewConfig().click();
@@ -219,7 +216,6 @@ test.describe('Carbon Field Level Commenting Tests', () => {
   });
 
   test('Verify commented By, Date and Edited timestamp and resolved timestamp',{ tag: ['@C228068641', ...TAGS] }, async () => {
-    await cm.login(ENV);
     await cm.selectAsset(assetType);
     await sitPage.edtTitleNewConfig().fill("AutoTest"+ cm.getTimeStamp());
     await sitPage.btnSaveNewConfig().click();
@@ -270,7 +266,6 @@ test.describe('Carbon Field Level Commenting Tests', () => {
   //Test cases for Body RTE commenting features ===================================================
 
   test('Verify user is able to Insert comment using floating menu for a text selected on the body',{ tag: ['@C227399609', ...TAGS] }, async () => {
-    await cm.login(ENV);
     await cm.selectAsset(assetType);
     await sitPage.edtTitleNewConfig().fill("AutoTest"+ cm.getTimeStamp());
     await cm.typeInContentEditable(sitPage.edtBody(), bodyText, { label: 'Body editor' });
@@ -293,7 +288,6 @@ test.describe('Carbon Field Level Commenting Tests', () => {
   });
 
   test('Verify user is able to Insert comment using floating menu for a multiple texts and comments for each texts appears on the comment drawer with text as title and highligts',{ tag: ['@C228076592', ...TAGS] }, async () => {
-    await cm.login(ENV);
     await cm.selectAsset(assetType);
     await sitPage.edtTitleNewConfig().fill("AutoTest"+ cm.getTimeStamp());
     await cm.typeInContentEditable(sitPage.edtBody(), bodyText, { label: 'Body editor' });
@@ -346,7 +340,6 @@ test.describe('Carbon Field Level Commenting Tests', () => {
   });
 
   test('Verify user is able to resolve the comment and resolved tooltip shows the text for which that commented is resolved',{ tag: ['@C228076623', ...TAGS] }, async () => {
-    await cm.login(ENV);
     await cm.selectAsset(assetType);
     await sitPage.edtTitleNewConfig().fill("AutoTest"+ cm.getTimeStamp());
     await cm.typeInContentEditable(sitPage.edtBody(), bodyText, { label: 'Body editor' });

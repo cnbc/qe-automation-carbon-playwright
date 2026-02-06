@@ -1,4 +1,4 @@
-import { test, expect } from '@playwright/test';
+import { test, expect } from '../fixtures/auth';
 import * as RM from '../helpers/reusablehelpersindex.ts';
 import * as PO from '../pageobjects/pageobjectsindex.ts';
 
@@ -17,7 +17,6 @@ test.describe('Carbon Upload Tests', () => {
   });
 
   test('Verify user is able to upload a single image',{ tag: ['@Bala234', ...TAGS] }, async () => {
-    await cm.login(ENV);
     await sitPage.lnkMediaLibrary().click();
     await cm.waitForPageToLoadCMS();
     await cm.waitForTime(2000);
@@ -29,7 +28,6 @@ test.describe('Carbon Upload Tests', () => {
   });
 
   test('Verify user is able to upload a multiple images',{ tag: ['@Bala345', ...TAGS] }, async () => {
-    await cm.login(ENV);
     await sitPage.lnkMediaLibrary().click();
     await cm.waitForPageToLoadCMS();
     await cm.waitForTime(2000);

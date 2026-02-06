@@ -1,4 +1,5 @@
-import { test, expect, chromium, type APIRequestContext } from '@playwright/test';
+import { test, expect } from '../fixtures/base';
+import { chromium, type APIRequestContext } from '@playwright/test';
 import * as fs from 'fs/promises';
 import * as path from 'path';
 import * as customHelpers from '../helpers/customHelpers.ts';
