@@ -9,12 +9,19 @@
   "scripts": {
     "test": "playwright test",
     "test:headed": "playwright test --headed",
-    "report": "playwright show-report"
+    "report": "playwright show-report",
+    "allure:generate": "allure generate allure-results -o allure-report --clean",
+    "allure:open": "allure open allure-report",
+    "allure:clean": "rimraf allure-results allure-report",
+    "test:allure": "playwright test"
   },
   "devDependencies": {
     "@playwright/test": "^1.57.0",
     "@types/node": "^25.0.8",
-    "dotenv": "^16.4.7"
+    "allure-commandline": "^2.36.0",
+    "allure-playwright": "^3.4.5",
+    "dotenv": "^16.4.7",
+    "rimraf": "^6.1.2"
   },
   "dependencies": {
     "@cnbc/playwright-sdk": "^1.0.0"

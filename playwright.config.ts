@@ -63,6 +63,8 @@ const getCapabilities = (testName?: string) => ({
  */
 export default defineConfig({
   testDir: './tests',
+  globalSetup: './tests/global-setup',
+  globalTeardown: './tests/global-teardown',
   /* Maximum time one test can run for */
   timeout: 20 * 60 * 1000, // 20 minutes
   /* Run tests in files in parallel */
@@ -74,7 +76,13 @@ export default defineConfig({
   /* Opt out of parallel tests on CI. */
   workers: process.env.CI ? 5 : undefined,
   /* Reporter to use. See https://playwright.dev/docs/test-reporters */
-  reporter: 'html',
+  reporter: [
+    ['blob', { outputFolder: 'blob-report' }],
+    // Allure reporter produces *results*; HTML is generated in globalTeardown.
+    ['allure-playwright', { outputFolder: 'allure-results' }],
+    // Keep Playwright HTML report but don't auto-open (we auto-open Allure instead).
+    ['html', { open: 'always' }]
+  ],
   /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
   use: {
     /* Base URL to use in actions like `await page.goto('')`. */
